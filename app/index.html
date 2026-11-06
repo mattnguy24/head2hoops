@@ -1,0 +1,2696 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<!-- ── Google AdSense ── -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3112158077835860"
+     crossorigin="anonymous"></script>
+
+<!-- ── SEO ── -->
+<title>Head2Hoops — NBA Player Stats Comparator</title>
+<meta name="description" content="Compare any two NBA players head-to-head: scoring, shooting, advanced stats, shot charts, career arc, and playstyle radar. All seasons from NBA history."/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://head2hoops.com/"/>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link rel="alternate icon" href="favicon.ico"/>
+
+<!-- Open Graph -->
+<meta property="og:title" content="Head2Hoops — NBA Player Comparator"/>
+<meta property="og:description" content="Compare any two NBA players head-to-head with stats, shot charts, career arcs, and playstyle radar."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://head2hoops.com/"/>
+<meta property="og:image" content="https://head2hoops.com/og-image.png"/>
+<meta property="og:site_name" content="Head2Hoops"/>
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Head2Hoops — NBA Player Comparator"/>
+<meta name="twitter:description" content="Compare any two NBA players head-to-head with stats, shot charts, career arcs, and playstyle radar."/>
+<meta name="twitter:image" content="https://head2hoops.com/og-image.png"/>
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Head2Hoops",
+  "url": "https://head2hoops.com",
+  "description": "Compare any two NBA players head-to-head with scoring, shooting, advanced stats, shot charts, career arc, and playstyle radar across all seasons in NBA history.",
+  "applicationCategory": "SportsApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript",
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "author": {"@type": "Organization", "name": "Head2Hoops"},
+  "keywords": "NBA stats, basketball comparison, player comparison, shot chart, career stats"
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+<!-- Chart.js loaded async — rendering won't start until player is selected -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
+
+<style>
+:root {
+  --bg: #0d0d0f; --bg2: #141416; --bg3: #1c1c1f;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+  --text: #f0ede8; --text2: #9e9b94; --text3: #5a5855;
+  --accent: #ff6b35; --accent2: #ffa500;
+  --blue: #378ADD; --orange: #D85A30; --green: #3db87a;
+  --radius: 10px; --radius-lg: 16px;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.5;min-height:100vh;transition:background .3s,color .3s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes barGrow{from{width:0!important}to{}}
+@keyframes popIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+@keyframes countUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.header{animation:fadeIn .4s ease both}
+.search-section{animation:fadeUp .5s .1s ease both}
+.tabs{animation:fadeUp .5s .2s ease both}
+#area{animation:fadeIn .3s ease both}
+
+.site-wrap{overflow-x:clip;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr auto;min-height:100vh;max-width:1380px;margin:0 auto}
+.header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:100;background:var(--bg);backdrop-filter:blur(12px)}
+.main{grid-column:1;padding:24px 20px;min-width:0;position:relative;z-index:1}
+
+.logo{font-family:var(--font-display);font-size:28px;letter-spacing:1px;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px;transition:opacity .2s}
+.logo:hover{opacity:.8}
+.logo span{color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:12px}
+.live-badge{background:var(--accent);color:#fff;font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;font-family:var(--font-mono)}
+
+#loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity .3s}
+#loading-overlay.hidden{opacity:0;pointer-events:none}
+.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+.load-logo{font-family:var(--font-display);font-size:36px;letter-spacing:2px;color:var(--text)}
+.load-logo span{color:var(--accent)}
+.load-sub{color:var(--text3);font-size:12px;font-family:var(--font-mono);letter-spacing:.05em}
+
+/* ── PLAYER LOADING STATE ── */
+.player-loading{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+
+
+.search-section{margin-bottom:24px;position:relative;z-index:10}
+.search-hero{font-family:var(--font-display);font-size:48px;line-height:1;margin-bottom:20px;letter-spacing:1px}
+.search-hero span{color:var(--accent)}
+.search-row{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:12px}
+.vs-chip{font-family:var(--font-display);font-size:22px;color:var(--text3);text-align:center;letter-spacing:1px;transition:color .3s,transform .2s}
+.vs-chip.active{color:var(--accent);transform:scale(1.15)}
+.search-wrap{position:relative}
+.search-input{width:100%;padding:12px 16px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:14px;transition:border-color .2s,box-shadow .2s}
+.search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,107,53,.12)}
+.search-input.has-value{border-color:rgba(255,107,53,.4)}
+.search-input::placeholder{color:var(--text3)}
+.search-input:disabled{opacity:.4;cursor:not-allowed}
+.dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);z-index:1000;overflow-x:hidden;overflow-y:auto;animation:slideDown .18s ease both;transform-origin:top center;max-height:280px;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.dropdown-item{padding:10px 16px;font-size:14px;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:space-between;transition:background .15s}
+.dropdown-item:hover{background:var(--bg3)}
+.dropdown-team{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
+.dropdown-badge{font-size:10px;padding:1px 5px;border-radius:4px;background:rgba(61,184,122,.15);color:var(--green);font-family:var(--font-mono);margin-left:6px}
+.season-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.season-block{display:flex;flex-direction:column;gap:5px}
+.season-label{font-size:12px;color:var(--text2);transition:color .3s}
+.season-label.ready{color:var(--accent)}
+.season-select{width:100%;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:13px;transition:all .25s}
+.season-select:not(:disabled){animation:fadeIn .3s ease both}
+.season-select:disabled{opacity:.4}
+
+.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap;border-bottom:0.5px solid var(--border);padding-bottom:12px}
+.tab{padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:0.5px solid transparent;background:transparent;color:var(--text2);font-family:var(--font-body);transition:all .2s;letter-spacing:.01em}
+.tab:hover{color:var(--text);background:var(--bg3);transform:translateY(-1px)}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:500;transform:translateY(-1px)}
+.tab:active{transform:scale(.97)}
+
+.area-fade{animation:fadeUp .25s ease both}
+
+.cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.player-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;transition:border-color .2s,transform .2s;animation:popIn .3s ease both;display:flex;flex-direction:column}
+.player-card:nth-child(2){animation-delay:.06s}
+.player-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.player-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:0.5px solid var(--border)}
+.avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:16px;letter-spacing:1px;flex-shrink:0;transition:transform .2s}
+.player-card:hover .avatar{transform:scale(1.08)}
+.av1{background:rgba(55,138,221,.15);color:#378ADD;border:1px solid rgba(55,138,221,.25)}
+.av2{background:rgba(216,90,48,.15);color:#D85A30;border:1px solid rgba(216,90,48,.25)}
+.player-name{font-size:15px;font-weight:500;color:var(--text)}
+.player-meta{font-size:12px;color:var(--text2);margin-top:2px;font-family:var(--font-mono)}
+.career-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;background:rgba(255,107,53,.15);color:var(--accent);margin-left:6px;font-family:var(--font-mono);vertical-align:middle}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto;padding-top:14px}
+.stat-block{background:var(--bg3);border-radius:8px;padding:10px;transition:transform .15s}
+.stat-block:hover{transform:scale(1.03)}
+.stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-family:var(--font-mono)}
+.stat-val{font-size:21px;font-weight:300;color:var(--text);font-family:var(--font-mono);animation:countUp .3s ease both}
+.stat-bar-wrap{margin-top:5px;height:3px;background:var(--border);border-radius:2px;overflow:hidden}
+.stat-bar{height:3px;border-radius:2px;animation:barGrow .6s .1s cubic-bezier(.22,1,.36,1) both}
+.bar1{background:var(--blue)}.bar2{background:var(--orange)}
+
+.h2h-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;animation:popIn .35s .1s ease both}
+.h2h-title{font-family:var(--font-display);font-size:20px;letter-spacing:.5px;margin-bottom:14px;color:var(--text2)}
+.h2h-row{display:grid;grid-template-columns:56px 1fr 56px;align-items:center;gap:10px;margin-bottom:10px;animation:fadeUp .2s ease both}
+.h2h-row:nth-child(2){animation-delay:.04s}.h2h-row:nth-child(3){animation-delay:.08s}
+.h2h-row:nth-child(4){animation-delay:.12s}.h2h-row:nth-child(5){animation-delay:.16s}
+.h2h-row:nth-child(6){animation-delay:.20s}.h2h-row:nth-child(7){animation-delay:.24s}
+.hval{font-size:14px;font-weight:500;text-align:center;color:var(--text2);font-family:var(--font-mono);transition:color .2s}
+.hval.w1{color:var(--blue)}.hval.w2{color:var(--orange)}
+.hlbl{font-size:11px;color:var(--text3);text-align:center;margin-bottom:4px;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.04em}
+.bar-track{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;display:flex}
+.bl{height:100%;background:var(--blue);border-radius:3px 0 0 3px;margin-left:auto;animation:barGrow .7s cubic-bezier(.22,1,.36,1) both}
+.br{height:100%;background:var(--orange);border-radius:0 3px 3px 0;animation:barGrow .7s cubic-bezier(.22,1,.36,1) both}
+
+.court-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.court-wrap{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:14px;animation:popIn .3s ease both}
+.court-wrap:nth-child(2){animation-delay:.08s}
+.court-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+.court-sub{font-size:11px;color:var(--text3);margin-bottom:10px;font-family:var(--font-mono)}
+svg.court{width:100%;border-radius:8px;background:var(--bg3)}
+.shot-legend{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text3);font-family:var(--font-mono)}
+.leg-dot{width:9px;height:9px;border-radius:50%}
+
+.chart-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px;animation:popIn .3s ease both}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.chart-title{font-family:var(--font-display);font-size:20px;letter-spacing:.5px;color:var(--text2)}
+.chart-ctrl select,.chart-ctrl{padding:6px 10px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font-body);font-size:13px}
+.legend-row{display:flex;gap:16px;margin-bottom:12px}
+.leg2{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);font-family:var(--font-mono)}
+.leg-sq{width:10px;height:10px;border-radius:2px}
+
+.placeholder{text-align:center;padding:40px 20px;color:var(--text3);font-size:14px;border:0.5px dashed var(--border2);border-radius:var(--radius-lg);font-family:var(--font-mono)}
+.placeholder-icon{font-size:32px;margin-bottom:12px;opacity:.4}
+
+/* ── SHOT MODE TOGGLE ── */
+.shot-mode-btn{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--text2);font-family:var(--font-body);transition:all .2s}
+.shot-mode-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.shot-mode-btn:hover:not(.active){background:var(--bg3);color:var(--text)}
+.adv-note{margin-top:14px;padding:10px 12px;border-radius:8px;background:var(--bg3);color:var(--text3);font-size:11px;line-height:1.55;display:flex;flex-direction:column;gap:6px}
+.adv-note b{color:var(--text2);font-weight:500}
+.adv-method{opacity:.75;font-size:10px}
+.shot-note{font-size:10px;color:var(--text3);text-align:center;padding:5px 0 0;font-family:var(--font-mono);letter-spacing:.01em}
+
+/* ── ARCHETYPE CHIPS ── */
+.arch-chips{margin-top:5px;display:flex;flex-wrap:wrap;gap:4px}
+.arch-chip{font-size:10px;padding:2px 7px;border-radius:8px;font-family:var(--font-mono);white-space:nowrap}
+.arch-chip.primary{background:rgba(55,138,221,.15);color:#7aaddf}
+.arch-chip.secondary{background:rgba(61,184,122,.12);color:var(--green)}
+
+/* ── AWARDS ── */
+.award-chip{font-size:11px;padding:3px 9px;border-radius:7px;font-family:var(--font-mono);white-space:nowrap;background:rgba(255,215,0,.14);color:#c8a000;border:0.5px solid rgba(255,215,0,.2)}
+.award-chip.award-major{background:rgba(255,215,0,.26);color:#e8bc00;font-weight:700;border-color:rgba(255,215,0,.45)}
+
+/* ── SHARE BUTTON ── */
+.share-row{display:flex;justify-content:flex-end;margin-bottom:12px}
+.share-btn{background:none;border:0.5px solid var(--border2);border-radius:20px;padding:6px 14px;color:var(--text2);font-family:var(--font-mono);font-size:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+.share-btn:hover{background:var(--bg3);color:var(--text)}
+.share-btn.copied{border-color:var(--green);color:var(--green)}
+
+/* ── MODE TOGGLE (Per-36, By Age, etc.) ── */
+.mode-toggle{display:flex;gap:2px;background:var(--bg3);border-radius:20px;padding:3px}
+.mode-toggle button{padding:4px 11px;border-radius:17px;font-size:11px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:var(--font-mono);transition:all .15s;white-space:nowrap}
+.mode-toggle button.active{background:var(--bg2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.mode-toggle button:hover:not(.active){color:var(--text2)}
+
+
+/* ── PLAYOFFS BADGE ── */
+.po-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:8px;background:rgba(216,90,48,.15);color:#D85A30;margin-left:6px;font-family:var(--font-mono);vertical-align:middle}
+
+/* ── SOLO PLAYER VIEW ── */
+.back-btn{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--text2);font-family:var(--font-body);transition:all .2s}
+.back-btn:hover{background:var(--bg3);color:var(--text)}
+.cta-compare-btn{padding:7px 16px;border-radius:20px;font-size:13px;cursor:pointer;border:0.5px solid var(--accent);background:rgba(255,107,53,.1);color:var(--accent);font-family:var(--font-body);font-weight:500;transition:all .2s}
+.cta-compare-btn:hover{background:var(--accent);color:#fff}
+.compare-link-btn{background:none;border:none;color:var(--text2);font-family:var(--font-body);font-size:13px;cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-decoration-color:var(--border2);padding:0;transition:color .2s}
+.compare-link-btn:hover{color:var(--text)}
+.solo-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.solo-banner{background:linear-gradient(135deg,rgba(255,107,53,.12) 0%,rgba(55,138,221,.08) 100%);border:0.5px solid rgba(255,107,53,.25);border-radius:var(--radius-lg);padding:20px;margin-bottom:16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.solo-banner-avatar{width:64px;height:64px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;color:#fff;flex-shrink:0;border:2px solid rgba(255,107,53,.4)}
+.solo-banner-name{font-family:var(--font-display);font-size:36px;letter-spacing:1.5px;line-height:1;color:var(--text);margin-bottom:4px}
+.solo-banner-meta{font-size:12px;color:var(--text3);font-family:var(--font-mono);margin-bottom:6px}
+.season-pills-wrap{overflow-x:auto;margin-bottom:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.season-pills-wrap::-webkit-scrollbar{display:none}
+.season-pills{display:flex;gap:6px;padding-bottom:4px;min-width:max-content}
+.season-pill{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:0.5px solid var(--border2);background:transparent;color:var(--text2);font-family:var(--font-mono);white-space:nowrap;transition:all .18s}
+.season-pill:hover{background:var(--bg3);color:var(--text)}
+.season-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.solo-key-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.solo-stat-big{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 10px;text-align:center;animation:popIn .3s ease both}
+.solo-stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;font-family:var(--font-mono)}
+.solo-stat-val{font-size:24px;font-weight:300;color:var(--text);font-family:var(--font-mono)}
+.solo-two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.solo-section{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;animation:popIn .3s ease both}
+.solo-section-title{font-family:var(--font-display);font-size:18px;letter-spacing:.5px;color:var(--text2);margin-bottom:12px}
+.solo-adv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.solo-adv-item{background:var(--bg3);border-radius:8px;padding:12px 10px;text-align:center}
+.solo-adv-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;font-family:var(--font-mono)}
+.solo-adv-val{font-size:20px;font-weight:400;color:var(--accent);font-family:var(--font-mono)}
+.landing-wrap{max-width:540px;margin:48px auto 0}
+.landing-hero{font-family:var(--font-display);font-size:56px;line-height:1;margin-bottom:24px;letter-spacing:1px;text-align:center}
+.landing-hero span{color:var(--accent)}
+.compare-hint{text-align:center;margin-top:14px;color:var(--text3);font-size:13px}
+@media(max-width:700px){.solo-two-col{grid-template-columns:1fr}}
+@media(max-width:520px){.solo-key-stats{grid-template-columns:repeat(2,1fr)}.solo-adv-grid{grid-template-columns:repeat(2,1fr)}.landing-hero{font-size:40px}}
+
+/* ── FEATURED COMPARISONS (SEO + discovery) ── */
+.featured{margin-top:32px;padding-top:24px;border-top:0.5px solid var(--border)}
+.featured-title{font-size:12px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.featured-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.featured-link{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);text-decoration:none;color:var(--text2);font-size:13px;transition:all .2s;cursor:pointer}
+.featured-link:hover{border-color:var(--border2);color:var(--text);background:var(--bg3)}
+.featured-link-vs{color:var(--text3);font-size:11px;font-family:var(--font-mono);margin:0 4px}
+
+.footer{grid-column:1/-1;border-top:0.5px solid var(--border);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;color:var(--text3);font-size:12px;font-family:var(--font-mono);flex-wrap:wrap;gap:8px}
+
+@media(max-width:900px){
+  .main{padding:16px}
+  .search-hero{font-size:32px}
+  .featured-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:580px){
+  .search-row{grid-template-columns:1fr 28px 1fr;gap:8px}
+  .vs-chip{font-size:16px}
+  .cards-grid{grid-template-columns:1fr}
+  .court-grid{grid-template-columns:1fr}
+  .featured-grid{grid-template-columns:1fr}
+}
+</style>
+
+<!-- ── Google Analytics 4 ── set GA_ID to your Measurement ID (G-…). Loads only on the live
+     domain, so local testing (Go Live) doesn't pollute the stats. Page views for in-app
+     navigation are sent automatically by GA4 enhanced measurement (browser history events). -->
+<script>
+  const GA_ID = 'G-N0W8594EJF';
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){ dataLayer.push(arguments); }
+  // Consent Mode v2: everything granted by default, but denied in the EEA/UK/Switzerland until
+  // the visitor accepts Google's consent message (AdSense → Privacy & messaging), which updates it.
+  gtag('consent', 'default', { ad_storage: 'granted', ad_user_data: 'granted', ad_personalization: 'granted', analytics_storage: 'granted' });
+  gtag('consent', 'default', { ad_storage: 'denied', ad_user_data: 'denied', ad_personalization: 'denied', analytics_storage: 'denied', wait_for_update: 500, region: ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IS','IE','IT','LV','LI','LT','LU','MT','NL','NO','PL','PT','RO','SK','SI','ES','SE','GB','CH'] });
+  if (/^(www\.)?head2hoops\.com$/.test(location.hostname) && !GA_ID.includes('XXXX')) {
+    const s = document.createElement('script');
+    s.async = true; s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    gtag('config', GA_ID, { anonymize_ip: true });
+  }
+  // Custom events (no-ops when GA isn't loaded). Deduped so re-renders don't double count.
+  const _tracked = new Set();
+  function track(name, params, key) {
+    if (key) { if (_tracked.has(key)) return; _tracked.add(key); }
+    try { gtag('event', name, params || {}); } catch (e) {}
+  }
+</script>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="load-logo">HEAD<span>2</span>HOOPS</div>
+  <div class="spinner"></div>
+  <div class="load-sub">Loading player roster...</div>
+</div>
+
+<div class="site-wrap">
+  <header class="header">
+    <a class="logo" href="/" onclick="event.preventDefault();goToLanding()" aria-label="Head2Hoops home">HEAD<span>2</span>HOOPS</a>
+    <div class="header-right"></div>
+  </header>
+
+  <main class="main">
+    <div id="app"></div>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="yr"></span> Head2Hoops</span>
+    <span>Data updates nightly · Not affiliated with NBA · <a href="/privacy.html" style="color:inherit">Privacy</a></span>
+  </footer>
+</div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const DATA_V = 4;   // bump together with the cache keys below when the data format changes
+const CONFIG = {
+  // DATA_V busts browser HTTP caches when the data FORMAT changes (CloudFront ignores the
+  // query string; daily content updates are handled by its invalidation)
+  indexUrl:       `./data/index.json?v=${DATA_V}`,
+  playerUrl:      (slug) => `./data/players/${slug}.json?v=${DATA_V}`,
+  leagueAvgsUrl:  `./data/league_avgs.json?v=${DATA_V}`,
+  zoneAvgsUrl:    `./data/zone_avgs.json?v=${DATA_V}`,
+  idxCacheKey:    'h2h_idx_v6',   // bump when the data format changes
+  plrCacheKey:    (slug) => `h2h_p3_${slug}`,
+  cacheTtl:       86400000,
+};
+// Drop cache entries from older data formats (they'd otherwise eat the ~5 MB storage quota)
+try {
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const k = localStorage.key(i);
+    if (/^h2h_(p[12]_|idx_v[1-5]$)/.test(k)) localStorage.removeItem(k);
+  }
+} catch (e) {}
+
+// Featured matchups — these render as real links for crawlers
+const FEATURED = [
+  ['LeBron James',            'Stephen Curry'],
+  ['LeBron James',            'Michael Jordan'],
+  ['Giannis Antetokounmpo',   'Nikola Jokic'],
+  ['Luka Doncic',             'Stephen Curry'],
+  ['Kevin Durant',            'LeBron James'],
+  ['Joel Embiid',             'Nikola Jokic'],
+  ['Jayson Tatum',            'Kevin Durant'],
+  ['Stephen Curry',           'Kobe Bryant'],
+];
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+let INDEX       = [];   // [{name, slug, team, pos, active}]
+let PLAYERS     = {};   // slug → full player data (in-memory cache)
+let LEAGUE_AVGS = {};   // season → {teamPPG}
+let ZONE_AVGS   = {};   // season → {zone: [made, attempts]} — league shooting by zone
+let sel     = [null, null];  // selected player slugs
+let selData = [null, null];  // selected player data objects
+let activeTab = 'basic';
+let arcChart  = null;
+let radarChart = null;
+let arcMetric  = 'ppg';
+let arcByAge    = false;
+let per36Mode   = false;
+
+// ── SOLO VIEW STATE ──
+let viewMode    = 'landing'; // 'landing' | 'player' | 'compare'
+let soloSlug    = null;
+let soloSeason  = 'Career';
+let soloShotMode = 'zones';
+let soloArcMetric = 'ppg';
+let soloRadarChart = null;
+let soloArcChart   = null;
+
+const tabDefs = {
+  basic:    {PPG:'PPG', RPG:'RPG', APG:'APG', SPG:'SPG', BPG:'BPG', TOV:'TOV'},
+  shooting: {FGP:'FG%', P3P:'3P%', FTP:'FT%', eFGP:'eFG%', TSP:'TS%'},
+  advanced: {PER:'PER', WS:'Win Shares', BPM:'BPM', VORP:'VORP', USG:'USG%'},
+};
+const lowerBetter = ['TOV'];
+
+// ── SLUG ────────────────────────────────────────────────────────────────────
+function slugify(name) {
+  return name.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+
+// ── CACHE HELPERS ────────────────────────────────────────────────────────────
+function cacheGet(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const {ts, data} = JSON.parse(raw);
+    if (Date.now() - ts < CONFIG.cacheTtl) return data;
+  } catch(e) {}
+  return null;
+}
+function cacheSet(key, data) {
+  try { localStorage.setItem(key, JSON.stringify({ts: Date.now(), data})); } catch(e) {}
+}
+
+// ── DATA LOADING ─────────────────────────────────────────────────────────────
+async function loadIndex() {
+  const cached = cacheGet(CONFIG.idxCacheKey);
+  if (cached) {
+    // Show the saved list instantly, then refresh it in the background so new players
+    // (daily Lambda updates, re-uploads) never stay hidden behind a stale copy.
+    INDEX = cached;
+    fetch(CONFIG.indexUrl, { cache: 'no-cache' })
+      .then(r => r.ok ? r.json() : null)
+      .then(fresh => { if (Array.isArray(fresh) && fresh.length) { INDEX = fresh; cacheSet(CONFIG.idxCacheKey, fresh); } })
+      .catch(() => {});
+    return;
+  }
+  const res = await fetch(CONFIG.indexUrl);
+  if (!res.ok) throw new Error(`index.json HTTP ${res.status}`);
+  INDEX = await res.json();
+  cacheSet(CONFIG.idxCacheKey, INDEX);
+}
+
+async function loadPlayer(slug) {
+  if (PLAYERS[slug]) return PLAYERS[slug];
+  const cached = cacheGet(CONFIG.plrCacheKey(slug));
+  if (cached) { PLAYERS[slug] = cached; return cached; }
+  const res = await fetch(CONFIG.playerUrl(slug));
+  if (!res.ok) throw new Error(`${slug}.json HTTP ${res.status}`);
+  const data = await res.json();
+  PLAYERS[slug] = data;
+  cacheSet(CONFIG.plrCacheKey(slug), data);
+  return data;
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────────────────
+async function boot() {
+  const overlay = document.getElementById('loading-overlay');
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  try {
+    await Promise.all([
+      loadIndex(),
+      fetch(CONFIG.leagueAvgsUrl).then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) LEAGUE_AVGS = d.seasons || {}; })
+        .catch(() => {}),
+      fetch(CONFIG.zoneAvgsUrl).then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) ZONE_AVGS = d.seasons || {}; })
+        .catch(() => {}),
+    ]);
+    overlay.classList.add('hidden');
+    setTimeout(() => overlay.style.display = 'none', 300);
+    await loadFromURL();
+  } catch(e) {
+    overlay.innerHTML = `
+      <div class="load-logo">HEAD<span>2</span>HOOPS</div>
+      <div style="color:var(--text3);font-size:13px;font-family:var(--font-mono);text-align:center;max-width:280px;line-height:1.7">
+        Failed to load player data.<br>Check your connection.
+      </div>
+      <button onclick="location.reload()"
+        style="padding:10px 24px;background:var(--accent);color:#fff;border:none;border-radius:20px;cursor:pointer;font-family:var(--font-body);font-size:14px">
+        Retry
+      </button>`;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', boot);
+
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (viewMode === 'player') { paintSoloHeatmap(); }
+    else if (viewMode === 'compare' && activeTab === 'shotchart') [0, 1].forEach(i => paintHeatCanvas(i));
+  }, 150);
+});
+
+// ── URL PARAMS — shareable links ──────────────────────────────────────────────
+function updateURL() {
+  if (viewMode !== 'compare') return;
+  const params = new URLSearchParams();
+  if (sel[0]) params.set('p1', sel[0]);
+  if (sel[1]) params.set('p2', sel[1]);
+  const el0 = document.getElementById('sel0');
+  const el1 = document.getElementById('sel1');
+  const s1 = el0?.value; const s2 = el1?.value;
+  if (s1 && s1 !== 'Career' && s1 !== 'Select player first') params.set('s1', s1);
+  if (s2 && s2 !== 'Career' && s2 !== 'Select player first') params.set('s2', s2);
+  const qs = params.toString();
+  history.replaceState(null, '', qs ? '?' + qs : window.location.pathname);
+}
+
+async function loadFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const playerSlug = params.get('player');
+  const p1slug = params.get('p1');
+  const p2slug = params.get('p2');
+
+  if (playerSlug) {
+    soloSlug = playerSlug;
+    soloSeason = params.get('season') || 'Career';
+    viewMode = 'player';
+    try { await loadPlayer(playerSlug); } catch(e) {}
+    renderApp();
+    return;
+  }
+
+  if (p1slug || p2slug) {
+    viewMode = 'compare';
+    const app = document.getElementById('app');
+    renderCompareView(app);
+    const load = async (i, slug, season) => {
+      const entry = INDEX.find(p => p.slug === slug);
+      if (!entry) return;
+      const inp = document.getElementById('s' + (i + 1));
+      if (inp) inp.value = entry.name;
+      try {
+        const data = await loadPlayer(slug);
+        applyPlayerSelection(i, entry, data, season || 'Career');
+      } catch(e) {
+        if (inp) { inp.value = ''; inp.placeholder = `Player ${i+1} not found`; }
+      }
+    };
+    await Promise.all([
+      p1slug ? load(0, p1slug, params.get('s1')) : Promise.resolve(),
+      p2slug ? load(1, p2slug, params.get('s2')) : Promise.resolve(),
+    ]);
+    updateMeta();
+    render();
+    return;
+  }
+
+  renderApp(); // landing
+}
+
+// ── META TAG UPDATES (dynamic SEO) ───────────────────────────────────────────
+function updateMeta() {
+  const n1 = sel[0] ? INDEX.find(p => p.slug === sel[0])?.name : null;
+  const n2 = sel[1] ? INDEX.find(p => p.slug === sel[1])?.name : null;
+  const title = n1 && n2
+    ? `${n1} vs ${n2} Stats — Head2Hoops NBA Comparator`
+    : 'Head2Hoops — NBA Player Stats Comparator';
+  const desc = n1 && n2
+    ? `Compare ${n1} and ${n2} head-to-head: scoring, shooting, advanced stats, shot chart, career arc, and playstyle. All seasons.`
+    : 'Compare any two NBA players head-to-head with stats, shot charts, career arcs, and playstyle radar. All seasons in NBA history.';
+  document.title = title;
+  if (n1 && n2) track('compare_players', { player_1: sel[0], player_2: sel[1], matchup: [sel[0], sel[1]].sort().join(' vs ') }, 'cmp:' + sel[0] + '|' + sel[1]);
+  document.querySelector('meta[name="description"]').setAttribute('content', desc);
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  const ogDesc  = document.querySelector('meta[property="og:description"]');
+  if (ogTitle) ogTitle.setAttribute('content', title);
+  if (ogDesc)  ogDesc.setAttribute('content', desc);
+}
+
+// ── SHARE BUTTON ─────────────────────────────────────────────────────────────
+function shareComparison() {
+  const url = window.location.href;
+  if (navigator.share) {
+    const n1 = INDEX.find(p => p.slug === sel[0])?.name;
+    const n2 = INDEX.find(p => p.slug === sel[1])?.name;
+    navigator.share({title: document.title, text: `${n1} vs ${n2} — Head2Hoops`, url});
+  } else {
+    navigator.clipboard?.writeText(url).then(() => {
+      const btn = document.getElementById('share-btn');
+      if (btn) { btn.textContent = '✓ Copied!'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = '⎘ Share'; btn.classList.remove('copied'); }, 2000); }
+    });
+  }
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────────────────
+// Matching: accent/punctuation-insensitive ("jokic" → Jokić, "oneal" → O'Neal), each typed
+// word must start a word of the name in any order ("james", "lebron j", "james lebron"),
+// common nicknames, and a one-typo fallback when nothing matches. Ordering: exact name,
+// then whole-word matches, then prefix matches; within each, the fame score `pop`
+// (awards + career games) so LeBron James comes before James Harden for "james".
+const NICKNAMES = {
+  'mj': 'michael-jordan', 'kd': 'kevin-durant', 'ad': 'anthony-davis', 'cp3': 'chris-paul',
+  'shaq': 'shaquille-o-neal', 'kat': 'karl-anthony-towns', 'sga': 'shai-gilgeous-alexander',
+  'dlo': 'd-angelo-russell', 'pg13': 'paul-george', 'dr j': 'julius-erving', 'drj': 'julius-erving',
+  'tmac': 'tracy-mcgrady', 't mac': 'tracy-mcgrady', 'penny': 'anfernee-hardaway', 'the mailman': 'karl-malone',
+  'greek freak': 'giannis-antetokounmpo', 'king james': 'lebron-james', 'the answer': 'allen-iverson',
+  'the dream': 'hakeem-olajuwon', 'the admiral': 'david-robinson', 'the glove': 'gary-payton',
+  'big o': 'oscar-robertson', 'wemby': 'victor-wembanyama', 'jjj': 'jaren-jackson-jr', 'zo': 'alonzo-mourning',
+};
+const normName = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .toLowerCase().replace(/[.'’]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+function oneEdit(a, b) {   // true if a and b differ by at most one insert/delete/substitute
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0, j = 0, d = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++d > 1) return false;
+    if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; }
+  }
+  return d + (a.length - i) + (b.length - j) <= 1;
+}
+function searchPlayers(query, limit) {
+  const q = normName(query);
+  if (!q) return [];
+  const qt = q.split(' ');
+  const scored = [];
+  for (const p of INDEX) {
+    if (!p._n) { p._n = normName(p.name); p._t = p._n.split(' '); p._full = p._t.join(''); }
+    let tier;
+    if (p._n === q || p._full === qt.join('')) tier = 0;                                  // exact
+    else if (qt.every(w => p._t.includes(w))) tier = 1;                                    // whole words
+    else if (qt.every(w => p._t.some(t => t.startsWith(w)))) tier = 2;                     // word prefixes
+    else if (q.length >= 3 && p._full.includes(qt.join(''))) tier = 3;                     // anywhere ("lebronj")
+    else continue;
+    scored.push({ p, tier });
+  }
+  if (!scored.length) {   // typo fallback: every typed word (4+ letters) within one edit of a name word
+    for (const p of INDEX) {
+      if (qt.every(w => p._t.some(t => t.startsWith(w) || (w.length >= 4 && (oneEdit(w, t) || oneEdit(w, t.slice(0, w.length)))))))
+        scored.push({ p, tier: 4 });
+    }
+  }
+  const nick = NICKNAMES[q] && INDEX.find(p => p.slug === NICKNAMES[q]);
+  if (nick) { const i = scored.findIndex(x => x.p === nick); if (i >= 0) scored.splice(i, 1); scored.unshift({ p: nick, tier: -1 }); }
+  return scored
+    .sort((a, b) => a.tier - b.tier || (b.p.pop || 0) - (a.p.pop || 0) || (b.p.g || 0) - (a.p.g || 0) || a.p.name.localeCompare(b.p.name))
+    .slice(0, limit).map(x => x.p);
+}
+
+function fp(i) {
+  const v  = document.getElementById('s' + (i + 1)).value.toLowerCase().trim();
+  const dd = document.getElementById('dd' + i);
+  if (!v) { dd.style.display = 'none'; return; }
+
+  const matches = searchPlayers(v, 15);
+
+  if (!matches.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = matches.map(p => {
+    const era = (!p.active && p.from && p.to) ? `${p.from}–${p.to}` : (p.team || '—');
+    const badge = p.active ? '<span class="dropdown-badge">Active</span>' : '';
+    return `<div class="dropdown-item" role="option" onclick="pickBySlug(${i},'${p.slug}')">
+      <span>${p.name}${badge}</span>
+      <span class="dropdown-team">${era} · ${p.pos}</span>
+    </div>`;
+  }).join('');
+  dd.style.display = 'block';
+}
+
+async function pickBySlug(i, slug) {
+  const entry = INDEX.find(p => p.slug === slug);
+  if (!entry) return;
+  const inp = document.getElementById('s' + (i + 1));
+  document.getElementById('dd' + i).style.display = 'none';
+  inp.value = entry.name;
+  inp.classList.remove('has-value');
+  inp.disabled = true;
+  inp.value = ''; // cleared while loading
+
+  // show inline spinner
+  const dd = document.getElementById('dd' + i);
+  dd.innerHTML = `<div class="dropdown-item" style="justify-content:center"><span class="player-loading"></span> Loading...</div>`;
+  dd.style.display = 'block';
+
+  try {
+    const data = await loadPlayer(slug);
+    dd.style.display = 'none';
+    inp.value = entry.name;
+    inp.disabled = false;
+    applyPlayerSelection(i, entry, data, 'Career');
+    updateMeta();
+    render();
+  } catch(e) {
+    dd.style.display = 'none';
+    inp.value = '';
+    inp.disabled = false;
+    inp.placeholder = 'Failed to load — try again';
+  }
+}
+
+function applyPlayerSelection(i, entry, data, seasonVal) {
+  sel[i]     = entry.slug;
+  selData[i] = data;
+  const inp  = document.getElementById('s' + (i + 1));
+  inp.value  = entry.name;
+  inp.classList.add('has-value');
+  inp.disabled = false;
+
+  // Populate season selector
+  const seasons = Object.keys(data.seasons);
+  const el  = document.getElementById('sel' + i);
+  el.innerHTML = seasons.map(s =>
+    `<option value="${s}"${s === seasonVal ? ' selected' : ''}>${s === 'Career' ? 'Career (all-time)' : s}</option>`
+  ).join('');
+  el.disabled = false;
+
+  const lbl = document.getElementById('sl' + i);
+  lbl.textContent = entry.name + ' — season';
+  lbl.classList.add('ready');
+
+  if (sel[0] && sel[1]) {
+    const vs = document.querySelector('.vs-chip');
+    if (vs) { vs.classList.add('active'); setTimeout(() => vs.classList.remove('active'), 600); }
+  }
+  updateURL();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) {
+    const dd0 = document.getElementById('dd0');
+    const dd1 = document.getElementById('dd1');
+    const ddS = document.getElementById('dd-solo');
+    if (dd0) dd0.style.display = 'none';
+    if (dd1) dd1.style.display = 'none';
+    if (ddS) ddS.style.display = 'none';
+  }
+});
+
+window.addEventListener('popstate', () => renderApp());
+
+function onSeasonChange() {
+  updateURL();
+  render();
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function setTab(t, el) {
+  activeTab = t;
+  track('select_tab', { tab: t });
+  document.querySelectorAll('.tab').forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+  el.classList.add('active');
+  el.setAttribute('aria-selected','true');
+  render();
+}
+function getSeason(i) {
+  const el = document.getElementById('sel' + i);
+  return (!el.disabled && el.value) ? el.value : 'Career';
+}
+function getStats(i) {
+  const d = selData[i]; if (!d) return null;
+  return d.seasons[getSeason(i)] || d.seasons['Career'];
+}
+function getShotsForPlayer(i) {
+  const p = selData[i]; if (!p) return null;
+  if (!p.shots_by_season) return p.shots || null; // backward compat
+  const season = getSeason(i);
+  const bySeason = p.shots_by_season;
+  if (season !== 'Career') {
+    // Return exact season data or null — never silently substitute career aggregate
+    return bySeason[season]?.length ? bySeason[season] : null;
+  }
+  // Career: aggregate all available seasons
+  const all = Object.values(bySeason).filter(Boolean).flat();
+  return all.length ? all : null;
+}
+
+// ── RENDER STATS ─────────────────────────────────────────────────────────────
+function ini(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2); }
+
+function applyPer36(basicStats, mpg) {
+  if (!basicStats || !mpg || mpg < 5) return basicStats;
+  const f = 36 / mpg;
+  const out = {...basicStats};
+  for (const k of ['PPG','RPG','APG','SPG','BPG','TOV']) {
+    if (out[k] != null) out[k] = Math.round(out[k] * f * 10) / 10;
+  }
+  return out;
+}
+
+function getPlayoffStats(i) {
+  const d = selData[i]; if (!d?.playoffs) return null;
+  const season = getSeason(i);
+  return d.playoffs[season] || d.playoffs['Career'] || null;
+}
+
+// Advanced stats are computed from season totals (see lambda/nba_metrics.py).
+// Older seasons lack full box scores, so flag them instead of showing false precision.
+const ADV_EXACT_FROM = '1985-86', ADV_FROM = '1977-78';
+function advNote(stats, season, firstSeason) {
+  const a = stats?.advanced || {};
+  if (season && season !== 'Career') {
+    if (season < ADV_FROM) return `${season}: advanced stats unavailable — the NBA didn't track player turnovers until 1977-78 (steals, blocks and offensive rebounds until 1973-74).`;
+    if (season < ADV_EXACT_FROM) return `${season}: advanced stats are estimates — NBA records before 1985-86 lack full team and opponent box scores.`;
+    return '';
+  }
+  if (a.partial_from) return `Career PER, BPM and USG% cover ${a.partial_from} onward. Win Shares and VORP aren't shown as career totals because earlier seasons can't be computed.`;
+  if (firstSeason && firstSeason < ADV_EXACT_FROM) return `Career includes seasons before 1985-86, whose advanced stats are estimates (incomplete historical box scores).`;
+  return '';
+}
+function firstSeasonOf(p) {
+  return Object.keys(p?.seasons || {}).filter(k => k !== 'Career').sort()[0] || '';
+}
+const ADV_METHOD_NOTE = 'PER and Win Shares use Basketball-Reference\'s published formulas; BPM and VORP follow the BPM 2.0 method with small simplifications, so they can differ from other sites by about a point.';
+function advNoteHtml(notes) {
+  const list = notes.filter(Boolean);
+  return `<div class="adv-note">${list.map(n => `<div>ⓘ ${n}</div>`).join('')}<div class="adv-method">${ADV_METHOD_NOTE}</div></div>`;
+}
+
+function renderStats(area) {
+  const d = tabDefs[activeTab];
+  const isBasic = activeTab === 'basic';
+  let d1 = getStats(0)?.[activeTab] || {}, d2 = getStats(1)?.[activeTab] || {};
+  if (per36Mode && isBasic) {
+    d1 = applyPer36(d1, getStats(0)?.basic?.MPG);
+    d2 = applyPer36(d2, getStats(1)?.basic?.MPG);
+  }
+  const maxes = Object.fromEntries(Object.keys(d).map(k => [k, Math.max(d1[k]||0, d2[k]||0) || 1]));
+  const SIGNED = {BPM: 10};   // can be negative: bars use value + offset
+  const fmtV = v => v == null ? '—' : v.toFixed(1);
+  const rows = Object.entries(d).map(([k, lbl]) => {
+    const raw1 = d1[k] ?? null, raw2 = d2[k] ?? null, off = SIGNED[k] || 0;
+    const both = raw1 != null && raw2 != null;
+    const v1 = Math.max(0, (raw1 ?? 0) + off), v2 = Math.max(0, (raw2 ?? 0) + off);
+    const lb = lowerBetter.includes(k), t = v1 + v2 || 1;
+    const w = !both ? 0 : lb ? (raw1 < raw2 ? 1 : raw1 > raw2 ? 2 : 0) : (raw1 > raw2 ? 1 : raw1 < raw2 ? 2 : 0);
+    return `<div class="h2h-row">
+      <div class="hval ${w===1?'w1':''}">${fmtV(raw1)}</div>
+      <div><div class="hlbl">${lbl}</div>
+        <div class="bar-track">
+          <div class="bl" style="width:${((v1/t)*100).toFixed(1)}%"></div>
+          <div class="br" style="width:${((v2/t)*100).toFixed(1)}%"></div>
+        </div></div>
+      <div class="hval ${w===2?'w2':''}">${fmtV(raw2)}</div>
+    </div>`;
+  }).join('');
+  const cards = [0, 1].map(i => {
+    const p = selData[i], sv = getSeason(i), ic = sv === 'Career';
+    const seasonStats = getStats(i);
+    let st = seasonStats?.[activeTab] || {};
+    if (per36Mode && isBasic) st = applyPer36(st, seasonStats?.basic?.MPG);
+    const entry = INDEX.find(e => e.slug === sel[i]) || {};
+    const teamStr = (!ic && seasonStats?.teams?.length)
+      ? seasonStats.teams.join(' / ')
+      : (entry.team || p?.team || '—');
+    const awardsHtml = renderAwards(p, sv);
+    return `<div class="player-card">
+      <div class="player-head">
+        <div class="avatar av${i+1}">${ini(p?.name || entry.name || '?')}</div>
+        <div>
+          <div class="player-name">${p?.name || entry.name}${ic?'<span class="career-badge">CAREER</span>':''}</div>
+          <div class="player-meta">${teamStr} · ${entry.pos||p?.pos||''}${!ic?' · '+sv:''}</div>
+          <div class="arch-chips">${getArchetype(seasonStats).map((t,j)=>`<span class="arch-chip ${j===0?'primary':'secondary'}">${t}</span>`).join('')}</div>
+          ${awardsHtml}
+        </div>
+      </div>
+      <div class="stat-grid">${Object.entries(d).slice(0,3).map(([k,lbl])=>
+        `<div class="stat-block">
+          <div class="stat-label">${lbl}</div>
+          <div class="stat-val">${st[k] == null ? '—' : st[k].toFixed(1)}</div>
+          <div class="stat-bar-wrap"><div class="stat-bar bar${i+1}" style="width:${Math.max(0, Math.min(((st[k]||0)/maxes[k])*100,100)).toFixed(0)}%"></div></div>
+        </div>`
+      ).join('')}</div>
+    </div>`;
+  }).join('');
+  const toggleHtml = isBasic ? `<div class="mode-toggle" style="margin-bottom:14px">
+    <button class="${!per36Mode?'active':''}" onclick="per36Mode=false;render()">Raw</button>
+    <button class="${per36Mode?'active':''}" onclick="per36Mode=true;render()">Per 36 min</button>
+  </div>` : '';
+  area.innerHTML = `
+    <div class="share-row"><button id="share-btn" class="share-btn" onclick="shareComparison()">⎘ Share</button></div>
+    <div class="cards-grid">${cards}</div>
+    <div class="h2h-card">${toggleHtml}<div class="h2h-title">HEAD TO HEAD</div>${rows}
+    ${activeTab === 'advanced' ? advNoteHtml([0, 1].map(i => {
+      const n = advNote(getStats(i), getSeason(i), firstSeasonOf(selData[i]));
+      return n && `<b>${selData[i]?.name || ''}</b> — ${n}`;
+    })) : ''}</div>`;
+}
+
+// ── SHOT CHART — THERMAL HEATMAP ─────────────────────────────────────────────
+// NBA coordinate system: LOC_X −250 to +250 (tenths of ft, basket=0)
+//                        LOC_Y −55 to +470  (0 = basket; positive = away from baseline)
+const COURT_PARAMS = {
+  X_MIN: -250, X_MAX: 250,
+  Y_MIN: -55,  Y_MAX: 470,
+  BASKET_R: 7.5, RESTRICT_R: 40, FT_R: 60, ARC_R: 237.5,
+  PAINT_W: 80,   PAINT_H: 142,
+  CORNER_X: 220, CORNER_Y: Math.sqrt(237.5*237.5 - 220*220), // ≈ 89.5 — NBA-accurate (22ft)
+  BASELINE_Y: -42,
+};
+
+let shotMode  = 'heat'; // 'heat' | 'accuracy' | 'zones'
+let zoneHover = [null, null]; // hovered zone name per player canvas
+// Global zone animation state — indexed by player (0 or 1)
+const ZONE_STATE = [
+  { rafId: null, phase: 0, ctrl: null },
+  { rafId: null, phase: 0, ctrl: null },
+];
+function stopZoneAnim(i) {
+  const s = ZONE_STATE[i];
+  if (s.rafId) { cancelAnimationFrame(s.rafId); s.rafId = null; }
+  s.phase = 0;
+  zoneHover[i] = null;
+}
+function detachZoneHover(i) {
+  stopZoneAnim(i);
+  if (ZONE_STATE[i].ctrl) { ZONE_STATE[i].ctrl.abort(); ZONE_STATE[i].ctrl = null; }
+}
+
+// ── ZONE CONSTANTS ───────────────────────────────────────────────────────────
+const ZONE_ORDER = [
+  'Restricted','Paint',
+  'Left Side Mid','Left Elbow','Center Mid','Right Elbow','Right Side Mid',
+  'Left C3','Right C3',
+  'Left Wing 3','Center 3','Right Wing 3',
+  'Deep 3',
+];
+const ZONE_LABELS = {
+  'Restricted':   'Restricted',  'Paint':         'Paint (Non-RA)',
+  'Left Side Mid':'Left Side Mid','Left Elbow':    'Left Elbow',
+  'Center Mid':   'Top of Key',  'Right Elbow':   'Right Elbow',
+  'Right Side Mid':'Right Side Mid',
+  'Left C3':      'Left Corner 3','Right C3':     'Right Corner 3',
+  'Left Wing 3':  'Left Wing 3', 'Center 3':      'Center 3',
+  'Right Wing 3': 'Right Wing 3','Deep 3':        'Deep 3 (30+ ft)',
+};
+// Fallback league FG% by zone (2024-25, measured from our shot data) — only used
+// if data/zone_avgs.json can't be loaded. Real ratings use season-specific averages.
+const ZONE_LG_AVG = {
+  'Restricted':0.665, 'Paint':0.446,
+  'Left Side Mid':0.41, 'Left Elbow':0.42, 'Center Mid':0.42,
+  'Right Elbow':0.42, 'Right Side Mid':0.41,
+  'Left C3':0.39, 'Right C3':0.39,
+  'Left Wing 3':0.355, 'Center 3':0.352, 'Right Wing 3':0.355,
+  'Deep 3':0.25,
+};
+const ZONE_MIN_FGA  = 12;  // below this, no rating — just the raw %
+const ZONE_SHRINK_K = 25;  // ratings treat each zone as if it had 25 extra league-average shots
+
+// Azimuth angle: 0=straight ahead, +right, -left (degrees, using atan2(x,y))
+function classifyZone(x, y) {
+  const P = COURT_PARAMS;
+  const dist = Math.sqrt(x*x + y*y);
+  if (y > 420 || dist > 400) return null;   // beyond 40 ft = heave, not a zone shot
+  // Corner 3s (flat sideline sections)
+  if (Math.abs(x) >= P.CORNER_X && y <= P.CORNER_Y)
+    return x > 0 ? 'Right C3' : 'Left C3';
+  if (dist <= P.RESTRICT_R) return 'Restricted';
+  if (Math.abs(x) <= P.PAINT_W && y <= P.PAINT_H) return 'Paint';
+  const az = Math.atan2(x, y) * 180 / Math.PI; // 0=ahead, +right, -left
+  if (dist < P.ARC_R) {
+    // Mid-range zones — az thresholds: 45° side/elbow, 15° elbow/center
+    if (az < -45) return 'Left Side Mid';
+    if (az >  45) return 'Right Side Mid';
+    if (az < -15) return 'Left Elbow';
+    if (az >  15) return 'Right Elbow';
+    return 'Center Mid';
+  }
+  // 3-pointers
+  if (dist > 310) return 'Deep 3';
+  if (az < -30) return 'Left Wing 3';
+  if (az >  30) return 'Right Wing 3';
+  return 'Center 3';
+}
+
+// League FG% for a zone in a season (nearest earlier season if missing, e.g. a brand-new season)
+function zoneLgPct(season, zone) {
+  let s = ZONE_AVGS[season];
+  if (!s) {
+    const keys = Object.keys(ZONE_AVGS).sort();
+    s = ZONE_AVGS[keys.filter(k => k <= season).pop() || keys[keys.length - 1]];
+  }
+  const v = s?.[zone];
+  return v && v[1] >= 100 ? v[0] / v[1] : ZONE_LG_AVG[zone];
+}
+
+// shotsBySeason: {season: [[x,y,made],...]} (or a flat array — legacy, rated vs fallback avgs)
+// Returns {zone: {a, m, e}} where e = expected makes for a league-average shooter
+// taking the same shots in the same seasons.
+const _zoneMemo = new WeakMap();
+function computeZonesFromShots(shotsBySeason) {
+  if (Array.isArray(shotsBySeason)) shotsBySeason = {'': shotsBySeason};
+  const z = {};
+  for (const zone of ZONE_ORDER) z[zone] = {a:0, m:0, e:0};
+  for (const [season, shots] of Object.entries(shotsBySeason)) {
+    if (!shots?.length) continue;
+    const lg = {};
+    for (const zone of ZONE_ORDER) lg[zone] = season ? zoneLgPct(season, zone) : ZONE_LG_AVG[zone];
+    for (const [x, y, made] of shots) {
+      const zone = classifyZone(x, y);
+      if (!zone) continue;
+      const t = z[zone]; t.a++; if (made) t.m++; t.e += lg[zone];
+    }
+  }
+  return z;
+}
+
+// Tier = player's FG% (pulled toward league avg for small samples) vs league avg
+function zoneTierOf(z) {
+  if (!z || z.a < ZONE_MIN_FGA) return null;
+  const lg  = z.e / z.a;
+  const adj = (z.m + ZONE_SHRINK_K * lg) / (z.a + ZONE_SHRINK_K);
+  return zoneLabel2K(adj, lg);
+}
+
+function getShotSeasonsForPlayer(i) {
+  const p = selData[i]; if (!p) return null;
+  if (!p.shots_by_season) return p.shots ? {'': p.shots} : null;
+  const season = getSeason(i), by = p.shots_by_season;
+  if (season !== 'Career') return by[season]?.length ? {[season]: by[season]} : null;
+  return Object.values(by).some(v => v?.length) ? by : null;
+}
+
+function getZonesForPlayer(i) {
+  const src = getShotSeasonsForPlayer(i);
+  if (!src) return null;
+  // Memoized: hover handlers call this on every mousemove
+  const key = selData[i], season = getSeason(i);
+  let m = _zoneMemo.get(key);
+  if (!m) { m = new Map(); _zoneMemo.set(key, m); }
+  if (!m.has(season)) m.set(season, computeZonesFromShots(src));
+  return m.get(season);
+}
+
+function zoneLabel2K(fgPct, lgAvg) {
+  if (fgPct === null || fgPct === undefined) return '—';
+  const d = fgPct - lgAvg;
+  if (d >  0.08) return 'LETHAL';
+  if (d >  0.03) return 'HOT';
+  if (d > -0.03) return 'NEUTRAL';
+  return 'COLD';
+}
+
+// pulse: 0→1 sine oscillation passed by the RAF animation loop
+function drawZoneChart(canvas, zones, hoveredZone, pulse = 0) {
+  const [W, H] = cssSize(canvas);
+  const ctx = canvas.getContext('2d');
+  const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#141416';
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  const m = mkMappers(W, H);
+  const P = COURT_PARAMS;
+  const bx = m.x(0), by = m.y(0);
+  const arcR   = m.r(P.ARC_R);
+  const deep3R = m.r(310);
+  const ca  = az => (-90 + az) * Math.PI / 180;
+  const cAz = Math.atan2(P.CORNER_X, P.CORNER_Y) * 180 / Math.PI;
+  const d3H  = Math.sqrt(310*310 - 250*250);
+  const d3Az = Math.atan2(250, d3H) * 180 / Math.PI;
+  const cW   = m.r(250 - P.CORNER_X);
+  const cH   = m.y(P.BASELINE_Y) - m.y(P.CORNER_Y);
+  const MIN_FGA = 12;
+
+  // Where does the azimuth ray from the basket exit the paint box?
+  // Returns [x, y] in NBA coords. Paint box: |x|<=PAINT_W, y<=PAINT_H.
+  const paintExit = az => {
+    const s = Math.sin(az * Math.PI / 180);
+    const c = Math.cos(az * Math.PI / 180);
+    if (Math.abs(c) < 0.001) return [s > 0 ? P.PAINT_W : -P.PAINT_W, 0]; // az=±90
+    const xFT = P.PAINT_H * s / c;
+    if (Math.abs(xFT) <= P.PAINT_W) return [xFT, P.PAINT_H];     // exits FT line
+    const xs = s > 0 ? P.PAINT_W : -P.PAINT_W;
+    return [xs, Math.abs(xs * c / s)];                              // exits side wall
+  };
+  // Precompute exit points used by multiple zones
+  // az=±15° = center/elbow boundary; az=±45° = elbow/sidemid boundary
+  const [xE15] = paintExit(-15); // ≈ (-38.1, 142) — FT-line exit for center/elbow
+  const [, yE45] = paintExit(-45); // ≈ (-80,   80)  — left-wall exit for elbow/sidemid
+  // Convenience: line to NBA coord
+  const lt = (x, y) => ctx.lineTo(m.x(x), m.y(y));
+
+  // Tier palette: [r, g, b, defaultAlpha, hoverAlpha]
+  // defaultAlpha is subtle so the court stays readable; hoverAlpha is vivid.
+  // The fill LERPS between default and hover based on pulse when a zone is hovered.
+  const TC = {
+    no_data: [20,  26,  48,  0.92, 0.94],
+    LETHAL:  [158, 60,  252, 0.28, 0.90],
+    HOT:     [222, 82,  14,  0.28, 0.90],
+    NEUTRAL: [62,  78,  115, 0.30, 0.86],
+    COLD:    [28,  64,  218, 0.24, 0.90],
+  };
+
+  const zoneTier = name => {
+    const z = zones?.[name];
+    return zoneTierOf(z) || 'no_data';
+  };
+
+  // Build fill color, lerping alpha for the hovered zone so the fill pulses
+  const fc = name => {
+    const [r, g, b, defA, hovA] = TC[zoneTier(name)];
+    if (name !== hoveredZone) return `rgba(${r},${g},${b},${defA})`;
+    const a = (defA + (hovA - defA) * (0.5 + 0.5 * pulse)).toFixed(2);
+    return `rgba(${r},${g},${b},${a})`;
+  };
+
+  // Mid-range zones: outer arc at arcR, inner boundary follows the paint BOX edges.
+  // No circular inner arc — eliminates the "sloppy overlapping" curved lines inside paint.
+  const P_ = {
+    // Beyond the 31 ft arc only (filled with evenodd) — so its tint doesn't sit under every other zone
+    'Deep 3':         () => { ctx.rect(0, 0, W, H); ctx.moveTo(bx + deep3R, by); ctx.arc(bx, by, deep3R, 0, Math.PI*2, true); },
+    'Left Wing 3':    () => { ctx.arc(bx,by,deep3R,ca(-cAz),ca(-30)); ctx.arc(bx,by,arcR,ca(-30),ca(-cAz),true); lt(-250,P.CORNER_Y); ctx.closePath(); },
+    'Center 3':       () => { ctx.arc(bx,by,deep3R,ca(-30),ca(30));   ctx.arc(bx,by,arcR,ca(30),ca(-30),true);   ctx.closePath(); },
+    'Right Wing 3':   () => { ctx.arc(bx,by,deep3R,ca(30),ca(cAz));   lt(250,P.CORNER_Y); ctx.arc(bx,by,arcR,ca(cAz),ca(30),true);  ctx.closePath(); },
+    // CW outer arc, inner boundary follows paint box + corner line + baseline.
+    // Side Mid outer arc starts at the corner junction (cAz) to avoid bleeding into Corner 3.
+    'Left Side Mid': () => {
+      ctx.arc(bx, by, arcR, ca(-cAz), ca(-45));   // arc: corner junction → az=-45
+      lt(-P.PAINT_W, yE45);           // to paint wall exit (-80, 80)
+      lt(-P.PAINT_W, P.BASELINE_Y);   // down paint wall to baseline (-80, -42)
+      lt(-P.CORNER_X, P.BASELINE_Y);  // along baseline to corner line (-200, -42)
+      ctx.closePath();                  // up corner line to arc start (~-200, 128)
+    },
+    'Left Elbow': () => {
+      ctx.arc(bx, by, arcR, ca(-45), ca(-15));
+      lt(xE15, P.PAINT_H);        // az=-15 FT-line exit (-38.1, 142)
+      lt(-P.PAINT_W, P.PAINT_H);  // along FT line to TL corner (-80, 142)
+      lt(-P.PAINT_W, yE45);       // down left wall to az=-45 exit (-80, 80)
+      ctx.closePath();
+    },
+    'Center Mid': () => {
+      ctx.arc(bx, by, arcR, ca(-15), ca(15));
+      lt(-xE15, P.PAINT_H);   // az=+15 FT-line exit (+38.1, 142)
+      lt(xE15,  P.PAINT_H);   // across FT line to az=-15 exit (-38.1, 142)
+      ctx.closePath();
+    },
+    'Right Elbow': () => {
+      ctx.arc(bx, by, arcR, ca(15), ca(45));
+      lt(P.PAINT_W, yE45);        // az=+45 paint exit (+80, 80)
+      lt(P.PAINT_W, P.PAINT_H);   // up right wall to TR corner (+80, 142)
+      lt(-xE15, P.PAINT_H);       // along FT line to az=+15 exit (+38.1, 142)
+      ctx.closePath();
+    },
+    'Right Side Mid': () => {
+      ctx.arc(bx, by, arcR, ca(45), ca(cAz));     // arc: az=+45 → corner junction
+      lt(P.CORNER_X, P.BASELINE_Y);   // down corner line to baseline (+200, -42)
+      lt(P.PAINT_W, P.BASELINE_Y);    // along baseline to right wall (+80, -42)
+      lt(P.PAINT_W, yE45);            // up right wall to az=+45 exit (+80, 80)
+      ctx.closePath();
+    },
+    'Paint':          () => { ctx.rect(m.x(-P.PAINT_W), m.y(P.PAINT_H), m.r(P.PAINT_W*2), m.y(P.BASELINE_Y)-m.y(P.PAINT_H)); },
+    'Restricted':     () => { ctx.arc(bx,by,m.r(P.RESTRICT_R),0,Math.PI*2); },
+    'Left C3':        () => { ctx.rect(m.x(-250), m.y(P.CORNER_Y), cW, cH); },
+    'Right C3':       () => { ctx.rect(m.x(P.CORNER_X), m.y(P.CORNER_Y), cW, cH); },
+  };
+
+  const ORDER = [
+    'Deep 3',
+    'Left Wing 3','Center 3','Right Wing 3',
+    'Left Side Mid','Left Elbow','Center Mid','Right Elbow','Right Side Mid',
+    'Paint','Restricted','Left C3','Right C3',
+  ];
+
+  const clipD = () => {
+    ctx.moveTo(m.x(-250), m.y(P.BASELINE_Y));
+    ctx.lineTo(m.x(-250), m.y(d3H));
+    ctx.arc(bx, by, deep3R, ca(-d3Az), ca(d3Az));
+    ctx.lineTo(m.x(250), m.y(P.BASELINE_Y));
+    ctx.closePath();
+  };
+
+  // ── 1. Zone fills ─────────────────────────────────────────────────────────
+  ctx.save();
+  ctx.beginPath(); clipD(); ctx.clip();
+
+  // a) Outer zones — no paint conflict
+  for (const name of ['Deep 3','Left Wing 3','Center 3','Right Wing 3','Left C3','Right C3']) {
+    ctx.beginPath(); P_[name]?.();
+    ctx.fillStyle = fc(name); ctx.fill(name === 'Deep 3' ? 'evenodd' : 'nonzero');
+  }
+
+  // b) Mid-range zones (semi-transparent — inner arcs may overlap paint area)
+  for (const name of ['Left Side Mid','Left Elbow','Center Mid','Right Elbow','Right Side Mid']) {
+    ctx.beginPath(); P_[name]?.();
+    ctx.fillStyle = fc(name); ctx.fill();
+  }
+
+  // c) Erase paint area back to solid background — removes mid-range bleed before paint draws.
+  //    Semi-transparent fills can't overwrite each other cleanly; this reset makes paint correct.
+  ctx.beginPath(); P_['Paint']?.();
+  ctx.fillStyle = bg;
+  ctx.fill();
+
+  // d) Paint + restricted draw on clean background
+  for (const name of ['Paint','Restricted']) {
+    ctx.beginPath(); P_[name]?.();
+    ctx.fillStyle = fc(name); ctx.fill();
+  }
+
+  ctx.restore();
+
+  // ── 2. Court lines ────────────────────────────────────────────────────────
+  drawCourtLines(canvas);
+
+  // ── 3. Zone separator lines ───────────────────────────────────────────────
+  ctx.save();
+  const radLine = (az, r0, r1) => {
+    const a = ca(az);
+    ctx.beginPath();
+    ctx.moveTo(bx + Math.cos(a)*r0, by + Math.sin(a)*r0);
+    ctx.lineTo(bx + Math.cos(a)*r1, by + Math.sin(a)*r1);
+    ctx.stroke();
+  };
+
+  // 3-point zone boundaries
+  ctx.strokeStyle = 'rgba(255,255,255,0.13)';
+  ctx.lineWidth = 1;
+  for (const az of [-30, 30]) radLine(az, arcR, deep3R);
+  // Corner 3 / Wing 3 boundary: horizontal line at CORNER_Y (matches zone fill edge)
+  ctx.beginPath();
+  ctx.moveTo(m.x(-250), m.y(P.CORNER_Y)); ctx.lineTo(m.x(-P.CORNER_X), m.y(P.CORNER_Y));
+  ctx.moveTo(m.x(P.CORNER_X), m.y(P.CORNER_Y)); ctx.lineTo(m.x(250), m.y(P.CORNER_Y));
+  ctx.stroke();
+  ctx.beginPath(); ctx.arc(bx, by, deep3R, ca(-d3Az), ca(d3Az)); ctx.stroke();
+
+  // Mid-range zone boundaries: from paint box exit to 3pt arc
+  ctx.strokeStyle = 'rgba(255,255,255,0.09)';
+  ctx.lineWidth = 0.8;
+  for (const [az, px, py] of [
+    [-15,  xE15,  P.PAINT_H],   // center/elbow boundary
+    [ 15, -xE15,  P.PAINT_H],
+    [-45, -P.PAINT_W, yE45],    // elbow/sidemid boundary
+    [ 45,  P.PAINT_W, yE45],
+  ]) {
+    const a = ca(az);
+    ctx.beginPath();
+    ctx.moveTo(m.x(px), m.y(py));
+    ctx.lineTo(bx + Math.cos(a)*arcR, by + Math.sin(a)*arcR);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  // ── 4. Hover: blurred glow ring (tier color) + crisp white outline ────────
+  if (hoveredZone) {
+    const [r, g, b] = TC[zoneTier(hoveredZone)];
+
+    const tracePath = () => {
+      ctx.beginPath();
+      if (hoveredZone === 'Deep 3') ctx.arc(bx, by, deep3R, ca(-d3Az), ca(d3Az));
+      else P_[hoveredZone]?.();
+    };
+
+    ctx.save();
+    ctx.beginPath(); clipD(); ctx.clip();
+
+    // Soft glow ring — colored, blurred
+    const glowA = (0.28 + 0.38 * pulse).toFixed(2);
+    const blur  = Math.round(5 + 4 * pulse);
+    ctx.filter = `blur(${blur}px)`;
+    tracePath();
+    ctx.strokeStyle = `rgba(${r},${g},${b},${glowA})`;
+    ctx.lineWidth = 12;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+    ctx.filter = 'none';
+
+    // Crisp white outline on top
+    const outA = (0.55 + 0.40 * pulse).toFixed(2);
+    tracePath();
+    ctx.strokeStyle = `rgba(255,255,255,${outA})`;
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  // ── 5. Labels ─────────────────────────────────────────────────────────────
+  const LABEL_POS = {
+    'Restricted':    [   0,  10], 'Paint':         [   0,  80],
+    'Left Side Mid': [-150,  55], 'Right Side Mid':[ 150,  55],
+    'Left Elbow':    [-140, 168], 'Right Elbow':   [ 140, 168],
+    'Center Mid':    [   0, 210], 'Left C3':       [-235,  24],
+    'Right C3':      [ 235,  24], 'Left Wing 3':   [-185, 230],
+    'Right Wing 3':  [ 190, 228], 'Center 3':      [   0, 264],
+    'Deep 3':        [   0, 336],
+  };
+  const TIER_CLR = { LETHAL:'#c084fc', HOT:'#fb923c', NEUTRAL:'#94a3b8', COLD:'#60a5fa' };
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+  for (const name of ZONE_ORDER) {
+    const pos = LABEL_POS[name]; if (!pos) continue;
+    const z = zones?.[name];
+    const px = m.x(pos[0]), py = m.y(pos[1]);
+    const isHov = name === hoveredZone;
+
+    // Corner 3 strips are too narrow for horizontal labels — rotate 90°
+    if (name === 'Left C3' || name === 'Right C3') {
+      if (!z || z.a < MIN_FGA) continue;
+      const t2 = zoneTier(name);
+      const pct2 = Math.round(z.m / z.a * 100);
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(name === 'Left C3' ? -Math.PI / 2 : Math.PI / 2);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if (t2 !== 'no_data') {
+        ctx.globalAlpha = isHov ? (0.65 + 0.35 * pulse) : 0.65;
+        ctx.fillStyle = TIER_CLR[t2];
+        ctx.font = '600 7px "DM Mono",monospace';
+        ctx.fillText(t2, 0, -8);
+      }
+      ctx.globalAlpha = isHov ? (0.80 + 0.20 * pulse) : 0.82;
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `700 ${isHov ? 14 : 12}px "DM Mono",monospace`;
+      ctx.fillText(`${pct2}%`, 0, 4);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+      continue;
+    }
+
+    if (!z || z.a === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.10)';
+      ctx.font = '400 9px "DM Mono",monospace';
+      ctx.fillText('—', px, py); continue;
+    }
+    const t = zoneTier(name);
+    const pct = Math.round(z.m / z.a * 100);
+    if (t === 'no_data') {
+      ctx.fillStyle = isHov ? 'rgba(255,255,255,0.70)' : 'rgba(255,255,255,0.32)';
+      ctx.font = '500 10px "DM Mono",monospace';
+      ctx.fillText(`${pct}%`, px, py); continue;
+    }
+    const clr = TIER_CLR[t];
+    // Tier badge (small, above FG%)
+    ctx.globalAlpha = isHov ? (0.65 + 0.35 * pulse) : 0.65;
+    ctx.fillStyle = clr;
+    ctx.font = '600 7px "DM Mono",monospace';
+    ctx.fillText(t, px, py - 8);
+    // FG% (large, white, brightens with pulse)
+    ctx.globalAlpha = isHov ? (0.80 + 0.20 * pulse) : 0.82;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `700 ${isHov ? 14 : 12}px "DM Mono",monospace`;
+    ctx.fillText(`${pct}%`, px, py + 4);
+    ctx.globalAlpha = 1;
+  }
+}
+
+function renderZoneTable() {
+  const el = document.getElementById('zone-table'); if (!el) return;
+  if (shotMode !== 'zones') { el.innerHTML = ''; return; }
+  const z0 = getZonesForPlayer(0), z1 = getZonesForPlayer(1);
+  const n0 = selData[0]?.name?.split(' ').slice(-1)[0] || 'P1';
+  const n1 = selData[1]?.name?.split(' ').slice(-1)[0] || 'P2';
+  const MIN_FGA = 12;
+  const TIER_COLOR = { LETHAL:'#a037d2', HOT:'#c34818', NEUTRAL:'#707080', COLD:'#2350b9' };
+  const fmt = (zones, zone) => {
+    if (!zones) return `<span style="color:var(--text3)">—</span>`;
+    const z = zones[zone]; if (!z || z.a === 0) return `<span style="color:var(--text3)">—</span>`;
+    const pct = z.m / z.a;
+    if (z.a < MIN_FGA) {
+      return `<span style="color:var(--text3)">${Math.round(pct*100)}%</span><span style="color:var(--text3);font-size:9px;margin-left:3px;opacity:.55">${z.m}/${z.a}</span>`;
+    }
+    const col = TIER_COLOR[zoneTierOf(z)] || 'var(--text2)';
+    return `<span style="color:${col};font-weight:700">${Math.round(pct*100)}%</span><span style="color:var(--text3);font-size:10px;margin-left:3px">${z.m}/${z.a}</span>`;
+  };
+  const cell = `padding:4px 0;border-bottom:0.5px solid var(--border);font-family:var(--font-mono);font-size:11px`;
+  const hdr  = `padding:4px 0;border-bottom:1px solid var(--border);font-family:var(--font-mono);font-size:10px;color:var(--text3);letter-spacing:.04em`;
+  const grp  = `padding:4px 0 2px;font-size:9px;letter-spacing:.08em;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase`;
+
+  const GROUPS = [
+    { label: 'RIM', zones: ['Restricted','Paint'] },
+    { label: 'MID-RANGE', zones: ['Left Side Mid','Left Elbow','Center Mid','Right Elbow','Right Side Mid'] },
+    { label: '3-POINTERS', zones: ['Left C3','Right C3','Left Wing 3','Center 3','Right Wing 3','Deep 3'] },
+  ];
+
+  const rows = GROUPS.map(g => {
+    const groupHeader = `<div style="${grp}">${g.label}</div><div></div><div></div>`;
+    const zoneRows = g.zones.map(z => `
+      <div style="${cell};color:var(--text3)">${ZONE_LABELS[z]}</div>
+      <div style="${cell};text-align:center">${fmt(z0,z)}</div>
+      <div style="${cell};text-align:center">${fmt(z1,z)}</div>`).join('');
+    return groupHeader + zoneRows;
+  }).join('');
+
+  el.innerHTML = `<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 8px">
+    <div style="${hdr}">ZONE</div>
+    <div style="${hdr};text-align:center;color:#378ADD">${n0}</div>
+    <div style="${hdr};text-align:center;color:#D85A30">${n1}</div>
+    ${rows}
+  </div>
+  <div style="margin-top:8px;display:flex;gap:10px;justify-content:center;font-size:10px;font-family:var(--font-mono);flex-wrap:wrap;color:var(--text3)">
+    <span><span style="color:rgba(185,65,235,0.95)">■</span> LETHAL (+8 pts)</span>
+    <span><span style="color:rgba(210,65,30,0.95)">■</span> HOT (+3)</span>
+    <span><span style="color:rgba(108,108,118,0.95)">■</span> NEUTRAL (±3)</span>
+    <span><span style="color:rgba(42,100,210,0.95)">■</span> COLD (−3)</span>
+  </div>
+  <div style="margin-top:4px;text-align:center;font-size:9px;font-family:var(--font-mono);color:var(--text3);opacity:.8">FG% vs. league average in the same seasons · small samples weighted toward average</div>`;
+}
+
+// ── HiDPI canvas helpers ──
+// Backing store is W*dpr × H*dpr for crisp text/lines on Retina; drawing code
+// works in CSS pixels via the context transform and cssSize().
+function sizeCanvas(canvas, W, H) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  canvas._w = W; canvas._h = H;
+  canvas.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+function cssSize(canvas) {
+  return [canvas._w || canvas.width, canvas._h || canvas.height];
+}
+
+function mkMappers(W, H) {
+  const P = COURT_PARAMS;
+  const xS = W / (P.X_MAX - P.X_MIN);
+  const yS = H / (P.Y_MAX - P.Y_MIN);
+  return {
+    x: v => (v - P.X_MIN) * xS,
+    y: v => H - (v - P.Y_MIN) * yS,  // flip: Y_MAX at canvas top
+    r: v => Math.abs(v * xS),
+  };
+}
+
+// Thermal colormap: deep blue → cyan → green → yellow → orange → white-hot
+function thermalRGB(t) {
+  const stops = [
+    [0,    0,   0,  80],
+    [0.15, 0,  60, 220],
+    [0.30, 0, 200, 180],
+    [0.45, 0, 230,  40],
+    [0.60, 180,230,   0],
+    [0.75, 255,140,   0],
+    [0.90, 255, 30,   0],
+    [1.0,  255,255, 255],
+  ];
+  for (let i = 1; i < stops.length; i++) {
+    if (t <= stops[i][0]) {
+      const [t0,r0,g0,b0] = stops[i-1], [t1,r1,g1,b1] = stops[i];
+      const f = (t - t0) / (t1 - t0);
+      return [r0+f*(r1-r0)|0, g0+f*(g1-g0)|0, b0+f*(b1-b0)|0];
+    }
+  }
+  return [255,255,255];
+}
+
+function drawThermalHeatmap(canvas, shots) {
+  const [W, H] = cssSize(canvas);
+  const ctx = canvas.getContext('2d');
+  const m = mkMappers(W, H);
+  // Tighter radius for large datasets so hotspots stay crisp, not a uniform blob
+  const BLOB = Math.max(W / 28, Math.min(W / 16, W / (8 + shots.length / 120)));
+
+  // Pass 1: accumulate density on a scratch canvas using radial gradients
+  const tmp = document.createElement('canvas');
+  tmp.width = W; tmp.height = H;
+  const tCtx = tmp.getContext('2d');
+  tCtx.fillStyle = '#000';
+  tCtx.fillRect(0, 0, W, H);
+
+  for (const [sx, sy] of shots) {
+    const cx = m.x(sx), cy = m.y(sy);
+    if (cx < -BLOB || cx > W+BLOB || cy < -BLOB || cy > H+BLOB) continue;
+    const g = tCtx.createRadialGradient(cx, cy, 0, cx, cy, BLOB);
+    g.addColorStop(0, 'rgba(255,255,255,0.12)');
+    g.addColorStop(0.4, 'rgba(255,255,255,0.04)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    tCtx.fillStyle = g;
+    tCtx.fillRect(Math.max(cx-BLOB, 0), Math.max(cy-BLOB, 0), BLOB*2, BLOB*2);
+  }
+
+  // Pass 2: read density pixels and remap to thermal palette
+  const src = tCtx.getImageData(0, 0, W, H);
+  let maxBr = 1;
+  for (let i = 0; i < src.data.length; i+=4) if (src.data[i] > maxBr) maxBr = src.data[i];
+
+  const out = ctx.createImageData(W, H);
+  const d = out.data;
+  for (let i = 0; i < src.data.length; i+=4) {
+    const norm = src.data[i] / maxBr;
+    if (norm < 0.015) { d[i+3] = 0; continue; }
+    const t = Math.pow(norm, 0.55);  // gamma boost
+    const [r,g,b] = thermalRGB(t);
+    d[i]=r; d[i+1]=g; d[i+2]=b;
+    d[i+3] = Math.min(255, norm * 2.8 * 255 | 0);
+  }
+  tCtx.putImageData(out, 0, 0);
+  ctx.drawImage(tmp, 0, 0, W, H);  // drawImage respects the HiDPI transform
+}
+
+function drawAccuracyDots(canvas, shots) {
+  const [W, H] = cssSize(canvas);
+  const ctx = canvas.getContext('2d');
+  const m = mkMappers(W, H);
+  for (const [sx, sy, made] of shots) {
+    const cx = m.x(sx), cy = m.y(sy);
+    ctx.beginPath();
+    ctx.arc(cx, cy, 3.5, 0, Math.PI*2);
+    ctx.fillStyle = made ? 'rgba(61,184,122,0.55)' : 'rgba(232,64,64,0.32)';
+    ctx.fill();
+  }
+}
+
+function drawCourtLines(canvas) {
+  const [W, H] = cssSize(canvas);
+  const ctx = canvas.getContext('2d');
+  const m   = mkMappers(W, H);
+  const P   = COURT_PARAMS;
+  const lc  = 'rgba(200,200,200,0.4)';
+  ctx.strokeStyle = lc;
+  ctx.lineWidth   = 1.2;
+
+  // Baseline
+  ctx.beginPath();
+  ctx.moveTo(m.x(-250), m.y(P.BASELINE_Y));
+  ctx.lineTo(m.x(250),  m.y(P.BASELINE_Y));
+  ctx.stroke();
+
+  // Paint — full lane from baseline to foul line
+  ctx.strokeRect(m.x(-P.PAINT_W), m.y(P.PAINT_H),
+                 m.x(P.PAINT_W)-m.x(-P.PAINT_W),
+                 m.y(P.BASELINE_Y)-m.y(P.PAINT_H));
+
+  // FT line
+  ctx.beginPath();
+  ctx.moveTo(m.x(-P.PAINT_W), m.y(P.PAINT_H));
+  ctx.lineTo(m.x(P.PAINT_W),  m.y(P.PAINT_H));
+  ctx.stroke();
+
+  // FT circle (top arc only — solid; bottom dashed)
+  ctx.beginPath();
+  ctx.arc(m.x(0), m.y(P.PAINT_H), m.r(P.FT_R), 0, Math.PI, true);
+  ctx.stroke();
+  ctx.setLineDash([4,4]);
+  ctx.beginPath();
+  ctx.arc(m.x(0), m.y(P.PAINT_H), m.r(P.FT_R), 0, Math.PI, false);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Restricted area
+  ctx.beginPath();
+  ctx.arc(m.x(0), m.y(0), m.r(P.RESTRICT_R), 0, Math.PI, true);
+  ctx.stroke();
+
+  // Backboard
+  ctx.beginPath();
+  ctx.moveTo(m.x(-30), m.y(-10));
+  ctx.lineTo(m.x(30),  m.y(-10));
+  ctx.stroke();
+
+  // Basket (gold ring)
+  ctx.strokeStyle = 'rgba(220,170,60,0.85)';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.arc(m.x(0), m.y(0), m.r(P.BASKET_R), 0, Math.PI*2);
+  ctx.stroke();
+  ctx.strokeStyle = lc;
+  ctx.lineWidth = 1.2;
+
+  // 3-point arc — angles measured from basket center in canvas coords (Y flipped)
+  const aRpx = m.r(P.ARC_R);
+  const aA1  = Math.atan2(m.y(P.CORNER_Y)-m.y(0), m.x(P.CORNER_X)-m.x(0));
+  const aA2  = Math.atan2(m.y(P.CORNER_Y)-m.y(0), m.x(-P.CORNER_X)-m.x(0));
+  ctx.beginPath();
+  ctx.arc(m.x(0), m.y(0), aRpx, aA1, aA2, true);
+  ctx.stroke();
+
+  // Corner three lines
+  ctx.beginPath();
+  ctx.moveTo(m.x(P.CORNER_X),  m.y(P.BASELINE_Y));
+  ctx.lineTo(m.x(P.CORNER_X),  m.y(P.CORNER_Y));
+  ctx.moveTo(m.x(-P.CORNER_X), m.y(P.BASELINE_Y));
+  ctx.lineTo(m.x(-P.CORNER_X), m.y(P.CORNER_Y));
+  ctx.stroke();
+}
+
+// Zone circle fallback (when no raw shot data available)
+const ZONE_COORDS = {
+  'Restricted':   {cx:200,cy:240,r:22}, 'Paint':        {cx:200,cy:210,r:18},
+  'Mid-range':    {cx:200,cy:165,r:16}, 'Left C3':      {cx:60, cy:255,r:16},
+  'Right C3':     {cx:340,cy:255,r:16}, 'Above Break 3':{cx:200,cy:110,r:16},
+  'Backcourt':    {cx:200,cy:55, r:12},
+};
+function zoneColor(a,m){if(!a)return'#555';const e=m/a;return e>=.55?'#3db87a':e>=.45?'#ffa500':'#e84040'}
+function buildZoneSVG(p) {
+  const zones = p.zones||{}, maxA = Math.max(...Object.values(zones).map(z=>z.a))||1;
+  const lc = 'rgba(255,255,255,0.15)';
+  const dots = Object.entries(zones).map(([zone,{a,m}]) => {
+    const {cx,cy} = ZONE_COORDS[zone]||{cx:200,cy:150};
+    const sz = a>0?Math.max(8,Math.min(26,(a/maxA)*26)):6;
+    return `<circle cx="${cx}" cy="${cy}" r="${sz}" fill="${zoneColor(a,m)}" opacity=".9"/>
+            <text x="${cx}" y="${cy+4}" text-anchor="middle" font-size="10" fill="white" font-weight="500" font-family="DM Mono,monospace">${a>0?Math.round(m/a*100)+'%':'—'}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 400 300" style="width:100%;border-radius:8px;background:var(--bg3)" role="img">
+    <rect x="140" y="160" width="120" height="130" rx="2" fill="none" stroke="${lc}" stroke-width="1"/>
+    <rect x="110" y="160" width="180" height="130" rx="2" fill="none" stroke="${lc}" stroke-width="1"/>
+    <line x1="0" y1="160" x2="400" y2="160" stroke="${lc}" stroke-width="1"/>
+    <circle cx="200" cy="160" r="60" fill="none" stroke="${lc}" stroke-width="1"/>
+    <circle cx="200" cy="247" r="25" fill="none" stroke="${lc}" stroke-width="1" stroke-dasharray="3,2"/>
+    <path d="M 55 160 A 170 170 0 0 1 345 160" fill="none" stroke="${lc}" stroke-width="1"/>
+    <line x1="55" y1="160" x2="55" y2="300" stroke="${lc}" stroke-width="1"/>
+    <line x1="345" y1="160" x2="345" y2="300" stroke="${lc}" stroke-width="1"/>
+    <line x1="0" y1="300" x2="400" y2="300" stroke="${lc}" stroke-width="2"/>
+    ${dots}
+  </svg>
+  <div class="shot-legend" style="margin-top:8px">
+    <div class="leg-item"><div class="leg-dot" style="background:#3db87a"></div>Hot 55%+</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#ffa500"></div>Warm 45-55%</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#e84040"></div>Cold &lt;45%</div>
+  </div>`;
+}
+
+function setShotMode(mode) {
+  // Stop zone animations when leaving zones mode
+  if (shotMode === 'zones' && mode !== 'zones') {
+    [0, 1].forEach(i => detachZoneHover(i));
+    getZoneTip().style.display = 'none';
+  }
+  shotMode = mode;
+  document.querySelectorAll('.shot-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  const lh = document.getElementById('legend-heat');
+  const la = document.getElementById('legend-acc');
+  if (lh) lh.style.display = mode === 'heat' ? 'flex' : 'none';
+  if (la) la.style.display = mode === 'accuracy' ? 'flex' : 'none';
+  [0, 1].forEach(i => paintHeatCanvas(i));
+  renderZoneTable();
+  // Attach zone hover when entering zones mode (no DOM rebuild, same canvas elements)
+  if (mode === 'zones') {
+    attachZoneHover('hmap0', 0);
+    attachZoneHover('hmap1', 1);
+  }
+}
+
+function paintHeatCanvas(i) {
+  const canvas = document.getElementById(`hmap${i}`);
+  if (!canvas) return;
+  const p = selData[i]; if (!p) return;
+  const W = canvas.parentElement.offsetWidth || 360;
+  const H = Math.round(W * 1.05);
+  sizeCanvas(canvas, W, H);
+  if (shotMode === 'zones') {
+    zoneHover[i] = null;
+    drawZoneChart(canvas, getZonesForPlayer(i), null);
+  } else {
+    const ctx = canvas.getContext('2d');
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#141416';
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    const shots = getShotsForPlayer(i);
+    if (shots?.length) {
+      if (shotMode === 'heat') drawThermalHeatmap(canvas, shots);
+      else drawAccuracyDots(canvas, shots);
+    }
+    drawCourtLines(canvas);
+    // If a specific season is selected but has no shot data, overlay a message
+    if (!shots?.length && getSeason(i) !== 'Career') {
+      const season = getSeason(i);
+      const yr = parseInt(season);
+      const msg = yr < 1997
+        ? `Shot tracking started 1996–97\nNo coordinate data for ${season}`
+        : `No shot location data for ${season}`;
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      ctx.fillRect(0, H * 0.35, W, H * 0.30);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx.font = `400 ${Math.round(W * 0.035)}px "DM Mono",monospace`;
+      const lines = msg.split('\n');
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, W / 2, H * 0.5 + (idx - (lines.length - 1) / 2) * Math.round(W * 0.045));
+      });
+      ctx.restore();
+    }
+  }
+}
+
+// ── ZONE HOVER TOOLTIP ───────────────────────────────────────────────────────
+function getZoneTip() {
+  let t = document.getElementById('zone-tip');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'zone-tip';
+    t.style.cssText = 'position:fixed;pointer-events:none;display:none;' +
+      'background:rgba(14,14,18,0.93);border:1px solid rgba(255,255,255,0.14);' +
+      'padding:7px 11px;border-radius:7px;font-family:var(--font-mono);' +
+      'font-size:11px;color:#fff;z-index:9999;white-space:nowrap;line-height:1.45';
+    document.body.appendChild(t);
+  }
+  return t;
+}
+
+function canvasToNBA(canvas, e) {
+  const rect = canvas.getBoundingClientRect();
+  const P = COURT_PARAMS, [W, H] = cssSize(canvas);
+  const scX = W / rect.width, scY = H / rect.height;
+  const cx = (e.clientX - rect.left) * scX;
+  const cy = (e.clientY - rect.top)  * scY;
+  const xS = W / (P.X_MAX - P.X_MIN), yS = H / (P.Y_MAX - P.Y_MIN);
+  return [cx / xS + P.X_MIN, P.Y_MIN + (H - cy) / yS];
+}
+
+function attachZoneHover(canvasId, playerIdx) {
+  // Cancel any existing listeners and RAF loops for this player slot before reattaching
+  detachZoneHover(playerIdx);
+
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const ctrl = new AbortController();
+  ZONE_STATE[playerIdx].ctrl = ctrl;
+  const sig = ctrl.signal;
+
+  const TIER_HEX = { LETHAL:'#c084fc', HOT:'#fb923c', NEUTRAL:'#94a3b8', COLD:'#60a5fa' };
+
+  const updateHover = zone => {
+    if (zone === zoneHover[playerIdx]) return;
+    stopZoneAnim(playerIdx);
+    zoneHover[playerIdx] = zone;
+    // Static highlight — no pulse animation, just draw once at full brightness
+    drawZoneChart(canvas, getZonesForPlayer(playerIdx), zone, zone ? 1 : 0);
+  };
+
+  canvas.addEventListener('mousemove', e => {
+    if (shotMode !== 'zones') return;
+    const [nbaX, nbaY] = canvasToNBA(canvas, e);
+    const zone  = classifyZone(nbaX, nbaY);
+    const tip   = getZoneTip();
+
+    updateHover(zone);
+
+    if (!zone) { tip.style.display = 'none'; return; }
+    const zones = getZonesForPlayer(playerIdx);
+    const z = zones?.[zone];
+    if (!z || z.a === 0) { tip.style.display = 'none'; return; }
+
+    const pct   = Math.round(z.m / z.a * 100);
+    const small = z.a < 12;
+    const tier  = small ? null : zoneTierOf(z);
+    const lgPct = Math.round(z.e / z.a * 100);
+    const col   = tier ? (TIER_HEX[tier] || '#fff') : 'rgba(255,255,255,0.45)';
+    tip.innerHTML =
+      `<div style="color:rgba(255,255,255,0.45);font-size:9px;letter-spacing:.06em;text-transform:uppercase">${ZONE_LABELS[zone]}</div>` +
+      `<div style="font-size:20px;font-weight:700;color:${col};line-height:1.2">${pct}%</div>` +
+      `<div style="color:rgba(255,255,255,0.45);font-size:10px">${z.m}/${z.a}${small ? ' <span style="opacity:.55">· small sample</span>' : ` &nbsp;<span style="color:${col}">${tier}</span>`}</div>` +
+      `<div style="color:rgba(255,255,255,0.35);font-size:9px;margin-top:2px">League avg ${lgPct}%</div>`;
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 18) + 'px';
+    tip.style.top  = (e.clientY - 42) + 'px';
+  }, { signal: sig });
+
+  canvas.addEventListener('mouseleave', () => {
+    getZoneTip().style.display = 'none';
+    stopZoneAnim(playerIdx);
+    drawZoneChart(canvas, getZonesForPlayer(playerIdx), null, 0);
+  }, { signal: sig });
+}
+
+function renderShotChart(area) {
+  // Kill any running zone hover animations before rebuilding the canvas DOM
+  [0, 1].forEach(i => detachZoneHover(i));
+  area.innerHTML = `
+    <div class="share-row"><button id="share-btn" class="share-btn" onclick="shareComparison()">⎘ Share</button></div>
+    <div class="h2h-card" style="padding-bottom:8px;margin:0 -8px">
+      <div class="shot-toggle" style="display:flex;gap:6px;margin-bottom:14px">
+        <button class="shot-mode-btn${shotMode==='zones'?' active':''}" data-mode="zones" onclick="setShotMode('zones')">📊 Zones</button>
+        <button class="shot-mode-btn${shotMode==='heat'?' active':''}" data-mode="heat" onclick="setShotMode('heat')">🔥 Frequency</button>
+        <button class="shot-mode-btn${shotMode==='accuracy'?' active':''}" data-mode="accuracy" onclick="setShotMode('accuracy')">🎯 Accuracy</button>
+      </div>
+      <div class="court-grid">
+        ${[0,1].map(i => {
+          const p = selData[i]; if (!p) return '';
+          const sv = getSeason(i);
+          const note = getShotNote(i);
+          return `<div>
+            <div class="court-title" style="margin-bottom:6px">${p.name||'?'}
+              <span class="career-badge" style="margin-left:4px">${sv==='Career'?'CAREER':sv}</span>
+            </div>
+            <div style="position:relative;border-radius:10px;overflow:hidden;background:var(--bg2)">
+              <canvas id="hmap${i}" style="display:block;width:100%"></canvas>
+            </div>
+            ${note?`<div class="shot-note">${note}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+      <div id="legend-heat" style="margin-top:10px;display:${shotMode==='accuracy'?'none':'flex'};align-items:center;justify-content:center;gap:8px">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--font-mono)">Low</span>
+        <div style="width:140px;height:7px;border-radius:4px;background:linear-gradient(to right,#00003c,#003cdc,#00e0b0,#ffe600,#ff1e00,#ffffff)"></div>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--font-mono)">Hottest</span>
+      </div>
+      <div id="legend-acc" class="shot-legend" style="margin-top:10px;justify-content:center;${shotMode==='heat'?'display:none':''}">
+        <div class="leg-item"><div class="leg-dot" style="background:#3db87a"></div>Made</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#e84040"></div>Missed</div>
+      </div>
+      <div id="zone-table"></div>
+      <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);text-align:center;margin-top:6px">
+        Select a season to view that year's shots · data available from 1996–97
+      </div>
+    </div>`;
+
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    paintHeatCanvas(0);
+    paintHeatCanvas(1);
+    renderZoneTable();
+    if (shotMode === 'zones') {
+      attachZoneHover('hmap0', 0);
+      attachZoneHover('hmap1', 1);
+    }
+  }));
+}
+
+// ── CAREER ARC ───────────────────────────────────────────────────────────────
+const ARC_METRICS = {
+  ppg:{label:'PPG',title:'Points per game'},
+  rpg:{label:'RPG',title:'Rebounds per game'},
+  apg:{label:'APG',title:'Assists per game'},
+};
+
+function getArcData(i, metric) {
+  const d = selData[i]; if (!d) return {};
+  return metric === 'ppg' ? (d.arc || {}) : (d['arc_'+metric] || {});
+}
+
+function getArcDataByAge(i, metric) {
+  const d = selData[i]; if (!d) return {};
+  const birth = d.birth_year; if (!birth) return {};
+  const raw = getArcData(i, metric);
+  const out = {};
+  for (const [season, val] of Object.entries(raw)) {
+    const yr = parseInt(season);
+    if (!isNaN(yr)) out[yr - birth] = val;
+  }
+  return out;
+}
+
+function _getArcLabels(d1, d2) {
+  const keys = [...new Set([...Object.keys(d1), ...Object.keys(d2)])];
+  return arcByAge
+    ? keys.sort((a, b) => parseInt(a) - parseInt(b))
+    : keys.sort();
+}
+
+function updateArc(metric) {
+  arcMetric = metric;
+  if (!arcChart) return;
+  const fn = arcByAge ? getArcDataByAge : getArcData;
+  const d1 = fn(0, metric), d2 = fn(1, metric);
+  const all = _getArcLabels(d1, d2);
+  arcChart.data.labels = all;
+  arcChart.data.datasets[0].data = all.map(y => d1[y] ?? null);
+  arcChart.data.datasets[1].data = all.map(y => d2[y] ?? null);
+  arcChart.options.scales.y.title.text = ARC_METRICS[metric].label;
+  arcChart.options.scales.x.title.text = arcByAge ? 'Age' : '';
+  arcChart.options.scales.x.title.display = arcByAge;
+  arcChart.update();
+}
+
+function renderArc(area) {
+  const n1 = selData[0]?.name || '?', n2 = selData[1]?.name || '?';
+  const canAge = !!(selData[0]?.birth_year && selData[1]?.birth_year);
+  const fn = (arcByAge && canAge) ? getArcDataByAge : getArcData;
+  const useByAge = arcByAge && canAge;
+  const d1 = fn(0, arcMetric), d2 = fn(1, arcMetric);
+  const all = _getArcLabels(d1, d2);
+  const opts = Object.entries(ARC_METRICS).map(([v,m])=>
+    `<option value="${v}"${v===arcMetric?' selected':''}>${m.title}</option>`).join('');
+  const ageToggle = canAge ? `<div class="mode-toggle">
+    <button class="${!useByAge?'active':''}" onclick="arcByAge=false;render()">By season</button>
+    <button class="${useByAge?'active':''}" onclick="arcByAge=true;render()">By age</button>
+  </div>` : '';
+  area.innerHTML = `<div class="share-row"><button id="share-btn" class="share-btn" onclick="shareComparison()">⎘ Share</button></div>
+  <div class="chart-card">
+    <div class="chart-header">
+      <div class="chart-title">CAREER ARC</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${ageToggle}
+        <select class="chart-ctrl" onchange="updateArc(this.value)">${opts}</select>
+      </div>
+    </div>
+    <div class="legend-row">
+      <div class="leg2"><div class="leg-sq" style="background:#378ADD"></div>${n1}</div>
+      <div class="leg2"><div class="leg-sq" style="background:#D85A30"></div>${n2}</div>
+    </div>
+    <div style="position:relative;width:100%;height:280px"><canvas id="arcC"></canvas></div>
+    ${!canAge && (selData[0]?.birth_year===null||selData[1]?.birth_year===null) ? '<div style="font-size:10px;color:var(--text3);font-family:var(--font-mono);text-align:center;margin-top:6px">Age view unavailable — birth year data still loading</div>' : ''}
+  </div>`;
+  if (arcChart) { arcChart.destroy(); arcChart = null; }
+  const tc = 'rgba(90,88,85,1)', gc = 'rgba(255,255,255,0.05)';
+  arcChart = new Chart(document.getElementById('arcC'), {
+    type: 'line',
+    data: {
+      labels: all,
+      datasets: [
+        {label:n1,data:all.map(y=>d1[y]??null),borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.1)',tension:.4,pointRadius:4,pointHoverRadius:6,spanGaps:false},
+        {label:n2,data:all.map(y=>d2[y]??null),borderColor:'#D85A30',backgroundColor:'rgba(216,90,48,0.1)',tension:.4,pointRadius:4,pointHoverRadius:6,spanGaps:false},
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {legend:{display:false}, tooltip:{mode:'index',intersect:false,callbacks:{
+        title: items => useByAge ? `Age ${items[0].label}` : items[0].label,
+      }}},
+      scales: {
+        x: {grid:{color:gc}, ticks:{color:tc,font:{size:11},maxRotation:45,autoSkip:true,maxTicksLimit:14},
+            title:{display:useByAge,text:'Age',color:tc,font:{size:11}}},
+        y: {grid:{color:gc}, ticks:{color:tc,font:{size:11}},
+            title:{display:true,text:ARC_METRICS[arcMetric].label,color:tc,font:{size:11}}},
+      },
+    },
+  });
+}
+
+// ── PLAYSTYLE RADAR ──────────────────────────────────────────────────────────
+const radarAxes=['scoring','shooting','rebounding','playmaking','defense','impact'];
+const radarLabels=['Scoring','Shooting','Rebounding','Playmaking','Defense','Impact'];
+
+function computeRadar(stats, seasonAwards=[], season='Career') {
+  if (!stats) return {scoring:0,shooting:0,rebounding:0,playmaking:0,defense:0,impact:0};
+  const {basic={}, shooting={}, advanced={}} = stats;
+  const ppg=basic.PPG||0, rpg=basic.RPG||0, apg=basic.APG||0;
+  const spg=basic.SPG||0, bpg=basic.BPG||0, tov=basic.TOV||3;
+  const ts_p=shooting.TSP||50, fg3_p=shooting.P3P||0;
+  const usg=advanced.USG||20, per=advanced.PER||15;
+  const drtg=advanced.DRTG||0;
+
+  // Era-adjusted scoring: normalize PPG relative to league avg team scoring that season.
+  // Reference baseline = 114.0 PPG (≈ 2022-23 league avg). Career view uses no adjustment.
+  const ERA_REF = 114.0;
+  const leagueTeamPPG = (season !== 'Career' && LEAGUE_AVGS[season]?.teamPPG) || ERA_REF;
+  const adjPPG = ppg * (ERA_REF / leagueTeamPPG);
+
+  // Defense: without DRTG → STL(50)+BLK(20)+RPG(30)=100 (guard-friendly: steals dominate)
+  //   with DRTG only → STL(20)+BLK(25)+RPG(15)+DRTG(40)=100
+  //   with DRTG+DREBPCT → STL(18)+BLK(22)+DRTG(35)+DREBPCT(25)=100
+  // Caps: SPG→2.0 (elite guard territory), BPG→2.5 (elite shot-blocker), RPG→12
+  const drebpct = advanced.DREBPCT || 0;
+  const hasDrtg = !!drtg, hasDreb = !!(drtg && drebpct);
+  const defStl  = Math.min(spg / 2.0, 1) * (hasDrtg ? (hasDreb ? 18 : 20) : 50);
+  const defBlk  = Math.min(bpg / 2.5, 1) * (hasDrtg ? (hasDreb ? 22 : 25) : 20);
+  const defRpg  = hasDreb ? 0 : Math.min(rpg / 12, 1) * (drtg ? 15 : 30);
+  const defDrtg = drtg ? Math.max(0, Math.min(1, (120 - drtg) / 22)) * 40 : 0;
+  const defDreb = drebpct ? Math.min(drebpct / 0.28, 1) * 25 : 0;
+
+  return {
+    scoring:    Math.min(100, Math.round(adjPPG / 35 * 100)),
+    shooting:   Math.min(100, Math.round(Math.min(ts_p / 70, 1) * 50 + Math.min(fg3_p / 45, 1) * 50)),
+    rebounding: Math.min(100, Math.round(rpg / 14 * 100)),
+    playmaking: Math.min(100, Math.round(apg / 12 * 80 + Math.max(0, 4 - tov) / 4 * 20)),
+    defense:    Math.min(100, Math.round(defStl + defBlk + defRpg + defDrtg + defDreb)),
+    impact:     Math.min(100, Math.round(Math.min(usg / 35, 1) * 60 + Math.min(per / 32, 1) * 40)),
+  };
+}
+
+const AWARD_LABELS = {
+  MVP:'MVP', Finals_MVP:'Finals MVP', DPOY:'DPOY', ROTY:'ROY',
+  Champion:'Champion', '6MOY':'6th Man', MIP:'MIP', ScoringChamp:'Scoring Champ',
+  AllStar:'All-Star', AllNBA1:'All-NBA 1st', AllNBA2:'All-NBA 2nd', AllNBA3:'All-NBA 3rd',
+  AllDef1:'All-Def 1st', AllDef2:'All-Def 2nd',
+};
+const AWARD_PRIORITY = ['MVP','Finals_MVP','DPOY','Champion','ROTY','6MOY','MIP',
+  'ScoringChamp','AllStar','AllNBA1','AllNBA2','AllNBA3','AllDef1','AllDef2'];
+const AWARD_MAJOR = new Set(['MVP','Finals_MVP','DPOY','Champion','ROTY']);
+// career view shows only these; AllStar/AllNBA/AllDef become compact secondary text
+const CAREER_CHIP_KEYS = ['MVP','Finals_MVP','DPOY','Champion','ROTY'];
+
+function renderAwards(p, season) {
+  if (!p) return '';
+  const makeChip = (k, label) =>
+    `<span class="award-chip${AWARD_MAJOR.has(k)?' award-major':''}">${label}</span>`;
+
+  if (season === 'Career') {
+    const totals = p.awards || {};
+    const chips = CAREER_CHIP_KEYS
+      .filter(k => totals[k] > 0)
+      .map(k => makeChip(k, `${totals[k]}× ${AWARD_LABELS[k]}`))
+      .join('');
+    // compact secondary: All-Star + All-NBA + All-Def counts
+    const asParts = [];
+    if (totals.AllStar) asParts.push(`${totals.AllStar}× AS`);
+    const allNBA = (totals.AllNBA1||0)+(totals.AllNBA2||0)+(totals.AllNBA3||0);
+    if (allNBA) asParts.push(`${allNBA}× All-NBA`);
+    const allDef = (totals.AllDef1||0)+(totals.AllDef2||0);
+    if (allDef) asParts.push(`${allDef}× All-Def`);
+    const secondary = asParts.length
+      ? `<div style="margin-top:3px;font-size:10px;color:var(--text3);font-family:var(--font-mono)">${asParts.join(' · ')}</div>`
+      : '';
+    if (!chips && !secondary) return '';
+    return `<div style="margin-top:5px">${chips ? `<div class="arch-chips">${chips}</div>` : ''}${secondary}</div>`;
+  }
+  // Single season
+  const seasonAwards = (p.awards_by_season || {})[season] || [];
+  if (!seasonAwards.length) return '';
+  const chips = AWARD_PRIORITY
+    .filter(k => seasonAwards.includes(k))
+    .map(k => makeChip(k, AWARD_LABELS[k]))
+    .join('');
+  return chips ? `<div class="arch-chips" style="margin-top:5px">${chips}</div>` : '';
+}
+
+function getArchetype(stats) {
+  if (!stats) return [];
+  const {basic={}, shooting={}, advanced={}} = stats;
+  const ppg=basic.PPG||0, rpg=basic.RPG||0, apg=basic.APG||0;
+  const spg=basic.SPG||0, bpg=basic.BPG||0, tov=basic.TOV||3;
+  const fg3=shooting.P3P||0, fgp=shooting.FGP||0;
+  const usg=advanced.USG||20;
+
+  let primary;
+  if      (apg >= 8.5 && tov <= 3.5)                              primary = 'Floor General';
+  else if (ppg >= 24 && usg >= 28)                                 primary = 'Scorer';
+  else if (apg >= 6.5 && ppg >= 16)                               primary = 'Playmaker';
+  else if (bpg >= 2.0 && rpg >= 8)                                primary = 'Rim Protector';
+  else if (rpg >= 10 && fgp >= 55 && apg < 3)                    primary = 'Paint Beast';
+  else if (fg3 >= 37 && spg >= 1.2 && ppg < 18 && usg < 24)     primary = '3-and-D';
+  else if (fg3 >= 34 && rpg >= 6 && ppg >= 12)                   primary = 'Stretch Big';
+  else if (fgp >= 54 && ppg >= 12 && fg3 < 25)                   primary = 'Slasher';
+  else if (ppg >= 18 && usg >= 22)                                 primary = 'Shot Creator';
+  else if (spg >= 1.6 || bpg >= 1.8)                              primary = 'Defensive Specialist';
+  else if (rpg >= 9 && ppg < 12)                                  primary = 'Rebounder';
+  else if (apg >= 5 && ppg < 14)                                  primary = 'Facilitator';
+  else                                                             primary = 'Role Player';
+
+  let secondary = null;
+  if      (fg3 >= 40 && primary !== '3-and-D')                           secondary = 'Sharpshooter';
+  else if (primary !== 'Floor General' && primary !== 'Playmaker' && apg >= 7) secondary = 'Facilitator';
+  else if (primary !== 'Rim Protector' && bpg >= 2.3)                   secondary = 'Shot Blocker';
+  else if (spg >= 1.8 && primary !== 'Defensive Specialist')            secondary = 'Disruptor';
+  else if (rpg >= 12 && primary !== 'Paint Beast' && primary !== 'Rebounder') secondary = 'Glass Cleaner';
+
+  return secondary ? [primary, secondary] : [primary];
+}
+
+function getShotNote(i) {
+  const p = selData[i]; if (!p) return '';
+  const season = getSeason(i);
+  if (season === 'Career') return '';
+  const bySeason = p.shots_by_season || {};
+  if (bySeason[season]?.length) return '';
+  const yr = parseInt(season);
+  if (yr < 1997) return `Shot tracking began 1996–97 — no coordinate data exists for this era`;
+  return `No shot location data available for ${season}`;
+}
+
+function renderRadar(area) {
+  const n1=selData[0]?.name||'?', n2=selData[1]?.name||'?';
+  const sv1=getSeason(0), sv2=getSeason(1);
+  const lbl1=sv1==='Career'?'CAREER':sv1, lbl2=sv2==='Career'?'CAREER':sv2;
+  area.innerHTML = `<div class="share-row"><button id="share-btn" class="share-btn" onclick="shareComparison()">⎘ Share</button></div>
+  <div class="chart-card">
+    <div class="chart-header"><div class="chart-title">PLAYSTYLE RADAR</div></div>
+    <div class="legend-row">
+      <div class="leg2"><div class="leg-sq" style="background:#378ADD"></div>${n1} <span class="career-badge">${lbl1}</span></div>
+      <div class="leg2"><div class="leg-sq" style="background:#D85A30"></div>${n2} <span class="career-badge">${lbl2}</span></div>
+    </div>
+    <div style="position:relative;width:100%;max-width:420px;margin:0 auto;height:340px"><canvas id="radarC"></canvas></div>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px;font-family:var(--font-mono)">Scoring (era-adjusted) · Shooting (TS%+3P%) · Rebounding · Playmaking (APG+TOV) · Defense (STL+BLK+DRTG+DREB%) · Impact (USG%+PER)</p>
+  </div>`;
+  if (radarChart) { radarChart.destroy(); radarChart=null; }
+  const sa = i => (selData[i]?.awards_by_season || {})[getSeason(i)] || [];
+  const r1=computeRadar(getStats(0), sa(0), getSeason(0)), r2=computeRadar(getStats(1), sa(1), getSeason(1));
+  const gc='rgba(255,255,255,0.08)', tc='#9e9b94';
+  radarChart = new Chart(document.getElementById('radarC'), {
+    type:'radar',
+    data:{labels:radarLabels,datasets:[
+      {label:n1,data:radarAxes.map(k=>r1[k]),borderColor:'#378ADD',backgroundColor:'rgba(55,138,221,0.15)',pointBackgroundColor:'#378ADD',pointRadius:4,borderWidth:2},
+      {label:n2,data:radarAxes.map(k=>r2[k]),borderColor:'#D85A30',backgroundColor:'rgba(216,90,48,0.15)',pointBackgroundColor:'#D85A30',pointRadius:4,borderWidth:2},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.r}`}}},
+      scales:{r:{min:0,max:100,grid:{color:gc},angleLines:{color:gc},pointLabels:{color:tc,font:{size:12,family:'DM Sans'}},ticks:{display:false}}}},
+  });
+}
+
+// ── PLAYOFFS ─────────────────────────────────────────────────────────────────
+function renderPlayoffs(area) {
+  const bothCareer = getSeason(0) === 'Career' && getSeason(1) === 'Career';
+  const PO_DEFS = bothCareer
+    ? {PPG:'PPG', RPG:'RPG', APG:'APG', SPG:'SPG', BPG:'BPG', TOV:'TOV'}
+    : {PPG:'PPG', RPG:'RPG', APG:'APG', SPG:'SPG', BPG:'BPG', TOV:'TOV', FGP:'FG%', TSP:'TS%'};
+  const loBetter = new Set(['TOV']);
+
+  function getV(i, k) {
+    const st = getPlayoffStats(i); if (!st) return 0;
+    const src = (k === 'FGP' || k === 'TSP') ? st.shooting : st.basic;
+    return (src && src[k] != null) ? src[k] : 0;
+  }
+
+  const cards = [0, 1].map(i => {
+    const p = selData[i], sv = getSeason(i), ic = sv === 'Career';
+    const pst = getPlayoffStats(i);
+    const entry = INDEX.find(e => e.slug === sel[i]) || {};
+    if (!pst?.basic) return `<div class="player-card" style="justify-content:center">
+      <div class="player-head" style="border-bottom:none;margin-bottom:0;padding-bottom:0;flex:none">
+        <div class="avatar av${i+1}">${ini(p?.name || entry.name || '?')}</div>
+        <div>
+          <div class="player-name">${p?.name || entry.name}</div>
+          <div class="player-meta" style="color:var(--text3);margin-top:4px">No playoff data${ic?'':' for '+sv}</div>
+        </div>
+      </div>
+    </div>`;
+    const gp = pst.basic.GP || 0;
+    const ws = pst.advanced?.WS;
+    const max0 = (k) => Math.max(getV(0,k), getV(1,k)) || 1;
+    return `<div class="player-card">
+      <div class="player-head">
+        <div class="avatar av${i+1}">${ini(p?.name || entry.name || '?')}</div>
+        <div>
+          <div class="player-name">${p?.name || entry.name}<span class="po-badge">PLAYOFFS</span></div>
+          <div class="player-meta">${ic?'Career':sv} · ${gp} GP${ws == null ? '' : ` · ${ws.toFixed(1)} WS`}</div>
+        </div>
+      </div>
+      <div class="stat-grid">${['PPG','RPG','APG'].map(k => {
+        const v = getV(i, k);
+        return `<div class="stat-block">
+          <div class="stat-label">${k}</div>
+          <div class="stat-val">${v.toFixed(1)}</div>
+          <div class="stat-bar-wrap"><div class="stat-bar bar${i+1}" style="width:${Math.min(v/max0(k)*100,100).toFixed(0)}%"></div></div>
+        </div>`;
+      }).join('')}</div>
+    </div>`;
+  }).join('');
+
+  const poRows = Object.entries(PO_DEFS).map(([k, lbl]) => {
+    const v1 = getV(0, k), v2 = getV(1, k), lb = loBetter.has(k), t = v1 + v2 || 1;
+    const w = lb ? (v1<v2?1:v1>v2?2:0) : (v1>v2?1:v1<v2?2:0);
+    return `<div class="h2h-row">
+      <div class="hval ${w===1?'w1':''}">${v1.toFixed(1)}</div>
+      <div><div class="hlbl">${lbl}</div>
+        <div class="bar-track">
+          <div class="bl" style="width:${((v1/t)*100).toFixed(1)}%"></div>
+          <div class="br" style="width:${((v2/t)*100).toFixed(1)}%"></div>
+        </div></div>
+      <div class="hval ${w===2?'w2':''}">${v2.toFixed(1)}</div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = `
+    <div class="share-row"><button id="share-btn" class="share-btn" onclick="shareComparison()">⎘ Share</button></div>
+    <div class="cards-grid">${cards}</div>
+    <div class="h2h-card"><div class="h2h-title">PLAYOFFS HEAD TO HEAD</div>${poRows}</div>`;
+}
+
+
+// ── RENDER DISPATCH ───────────────────────────────────────────────────────────
+function render() {
+  const area = document.getElementById('area');
+  area.classList.remove('area-fade');
+  void area.offsetWidth;
+  area.classList.add('area-fade');
+
+  // Leaders tab works without players selected
+
+  if (!sel[0] && !sel[1]) {
+    area.innerHTML='<div class="placeholder" aria-live="polite"><div class="placeholder-icon">🏀</div>Search two players above to start comparing</div>';
+    return;
+  }
+  if (!sel[0]||!sel[1]) {
+    area.innerHTML='<div class="placeholder" aria-live="polite"><div class="placeholder-icon">🔍</div>Now pick a second player to compare</div>';
+    return;
+  }
+  if (!selData[0]||!selData[1]) return;
+  if (activeTab==='shotchart') { renderShotChart(area); return; }
+  if (activeTab==='arc')       { renderArc(area);       return; }
+  if (activeTab==='radar')     { renderRadar(area);     return; }
+  if (activeTab==='playoffs')  { renderPlayoffs(area);  return; }
+  renderStats(area);
+}
+
+// ── FEATURED COMPARISONS ─────────────────────────────────────────────────────
+function buildFeaturedLinks() {
+  const grid = document.getElementById('featured-grid');
+  if (!grid) return;
+  grid.innerHTML = FEATURED.map(([a, b]) => {
+    const sa = slugify(a), sb = slugify(b);
+    return `<a class="featured-link" href="?p1=${sa}&p2=${sb}" onclick="handleFeatured(event,'${sa}','${sb}')" aria-label="Compare ${a} vs ${b}">
+      <span>${a}</span>
+      <span class="featured-link-vs">vs</span>
+      <span>${b}</span>
+    </a>`;
+  }).join('');
+}
+
+async function handleFeatured(e, slug1, slug2) {
+  e.preventDefault();
+  viewMode = 'compare';
+  sel = [null, null]; selData = [null, null];
+  history.pushState(null, '', `?p1=${slug1}&p2=${slug2}`);
+
+  const app = document.getElementById('app');
+  renderCompareView(app);
+
+  const load = async (i, slug) => {
+    const entry = INDEX.find(p => p.slug === slug);
+    if (!entry) return;
+    const inp = document.getElementById('s' + (i + 1));
+    if (inp) inp.value = entry.name;
+    const data = await loadPlayer(slug);
+    applyPlayerSelection(i, entry, data, 'Career');
+  };
+  await Promise.all([load(0, slug1), load(1, slug2)]);
+  updateMeta();
+  render();
+}
+
+// ── APP ROUTER ─────────────────────────────────────────────────────────────────
+function renderApp() {
+  const app = document.getElementById('app');
+  if (!app) return;
+  const params = new URLSearchParams(window.location.search);
+  const playerSlug = params.get('player');
+  const p1 = params.get('p1');
+  const p2 = params.get('p2');
+
+  if (playerSlug) {
+    viewMode = 'player'; soloSlug = playerSlug;
+    soloSeason = params.get('season') || 'Career';
+    renderSinglePlayer(app);
+  } else if (p1 || p2) {
+    viewMode = 'compare';
+    renderCompareView(app);
+  } else {
+    viewMode = 'landing';
+    renderLanding(app);
+  }
+}
+
+function goToLanding() {
+  viewMode = 'landing'; soloSlug = null; soloSeason = 'Career';
+  history.pushState(null, '', window.location.pathname);
+  renderApp();
+}
+
+async function goToPlayer(slug, season) {
+  soloSlug = slug; soloSeason = season || 'Career';
+  const params = new URLSearchParams();
+  params.set('player', slug);
+  if (soloSeason !== 'Career') params.set('season', soloSeason);
+  history.pushState(null, '', '?' + params.toString());
+  renderApp();
+}
+
+function setSoloSeason(season) {
+  soloSeason = season;
+  const params = new URLSearchParams();
+  params.set('player', soloSlug);
+  if (season !== 'Career') params.set('season', season);
+  history.replaceState(null, '', '?' + params.toString());
+  renderApp();
+}
+
+async function goToCompareMode(preloadSlug) {
+  viewMode = 'compare'; sel = [null, null]; selData = [null, null];
+  const params = new URLSearchParams();
+  if (preloadSlug) params.set('p1', preloadSlug);
+  history.pushState(null, '', params.toString() ? '?' + params.toString() : window.location.pathname);
+
+  const app = document.getElementById('app');
+  renderCompareView(app);
+
+  if (preloadSlug) {
+    const entry = INDEX.find(p => p.slug === preloadSlug);
+    if (entry) {
+      try {
+        const data = PLAYERS[preloadSlug] || await loadPlayer(preloadSlug);
+        applyPlayerSelection(0, entry, data, 'Career');
+        render();
+      } catch(e) {}
+    }
+  }
+  setTimeout(() => document.getElementById(preloadSlug ? 's2' : 's1')?.focus(), 80);
+}
+
+// ── LANDING VIEW ───────────────────────────────────────────────────────────────
+function renderLanding(app) {
+  app.innerHTML = `
+  <div class="landing-wrap">
+    <h1 class="landing-hero">ANY NBA<br><span>PLAYER</span></h1>
+    <div class="search-wrap" style="position:relative">
+      <input class="search-input" id="s-solo"
+        style="font-size:15px;padding:14px 18px"
+        placeholder="Search any player — stats, shot charts, career arc..."
+        oninput="soloSearch()" onfocus="soloSearch()" autocomplete="off"/>
+      <div class="dropdown" id="dd-solo" style="display:none"></div>
+    </div>
+    <div class="compare-hint">Want to compare two players?
+      <button class="compare-link-btn" onclick="goToCompareMode()">Open compare view →</button>
+    </div>
+  </div>
+  <section class="featured" style="margin-top:48px">
+    <div class="featured-title">Popular comparisons</div>
+    <div class="featured-grid" id="featured-grid"></div>
+  </section>`;
+  buildFeaturedLinks();
+  setTimeout(() => document.getElementById('s-solo')?.focus(), 50);
+}
+
+// ── COMPARE VIEW (wrapper for existing compare logic) ──────────────────────────
+function renderCompareView(app) {
+  app.innerHTML = `
+  <div class="search-section" style="margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="back-btn" onclick="goToLanding()">← Search</button>
+      <h1 class="search-hero" style="font-size:28px;margin:0">COMPARE PLAYERS</h1>
+    </div>
+    <div class="search-row">
+      <div class="search-wrap">
+        <input class="search-input" id="s1" placeholder="Search player 1..." oninput="fp(0)" onfocus="fp(0)" autocomplete="off" aria-label="Player 1"/>
+        <div class="dropdown" id="dd0" role="listbox" style="display:none"></div>
+      </div>
+      <div class="vs-chip">VS</div>
+      <div class="search-wrap">
+        <input class="search-input" id="s2" placeholder="Search player 2..." oninput="fp(1)" onfocus="fp(1)" autocomplete="off" aria-label="Player 2"/>
+        <div class="dropdown" id="dd1" role="listbox" style="display:none"></div>
+      </div>
+    </div>
+    <div class="season-row">
+      <div class="season-block">
+        <span class="season-label" id="sl0">Player 1 — season</span>
+        <select class="season-select" id="sel0" onchange="onSeasonChange()" disabled><option>Select player first</option></select>
+      </div>
+      <div class="season-block">
+        <span class="season-label" id="sl1">Player 2 — season</span>
+        <select class="season-select" id="sel1" onchange="onSeasonChange()" disabled><option>Select player first</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab${activeTab==='basic'?' active':''}" onclick="setTab('basic',this)">Basic</button>
+    <button class="tab${activeTab==='shooting'?' active':''}" onclick="setTab('shooting',this)">Shooting</button>
+    <button class="tab${activeTab==='advanced'?' active':''}" onclick="setTab('advanced',this)">Advanced</button>
+    <button class="tab${activeTab==='shotchart'?' active':''}" onclick="setTab('shotchart',this)">Shot chart</button>
+    <button class="tab${activeTab==='arc'?' active':''}" onclick="setTab('arc',this)">Career arc</button>
+    <button class="tab${activeTab==='radar'?' active':''}" onclick="setTab('radar',this)">Playstyle</button>
+    <button class="tab${activeTab==='playoffs'?' active':''}" onclick="setTab('playoffs',this)">Playoffs</button>
+  </div>
+  <div id="area">
+    <div class="placeholder">
+      <div class="placeholder-icon">🏀</div>
+      Search two players above to start comparing
+    </div>
+  </div>`;
+}
+
+// ── SOLO PLAYER VIEW ───────────────────────────────────────────────────────────
+function renderSinglePlayer(app) {
+  track('view_player', { player: soloSlug, season: soloSeason }, 'solo:' + soloSlug + '|' + soloSeason);
+  // Destroy live charts before replacing DOM (prevents Chart.js internal errors)
+  if (soloRadarChart) { try { soloRadarChart.destroy(); } catch(e) {} soloRadarChart = null; }
+  if (soloArcChart)   { try { soloArcChart.destroy();   } catch(e) {} soloArcChart   = null; }
+  stopSoloZoneLoop();
+
+  const p = PLAYERS[soloSlug];
+  if (!p) {
+    app.innerHTML = `<div class="placeholder"><div class="spinner"></div></div>`;
+    loadPlayer(soloSlug).then(() => renderSinglePlayer(app)).catch(() => {
+      app.innerHTML = `<div class="placeholder">Could not load player data.</div>`;
+    });
+    return;
+  }
+
+  const entry = INDEX.find(e => e.slug === soloSlug) || {};
+  const stats  = p.seasons?.[soloSeason] || p.seasons?.['Career'];
+  const basicSt  = stats?.basic    || {};
+  const shootSt  = stats?.shooting || {};
+  const advSt    = stats?.advanced || {};
+  const seasons  = Object.keys(p.seasons || {}).filter(s => s !== 'Career').reverse();
+  const awardsHtml = renderAwards(p, soloSeason);
+  const archetypes = getArchetype(stats) || [];
+  const hasShotData = soloSeason === 'Career'
+    ? Object.values(p.shots_by_season || {}).some(s => s?.length)
+    : !!(p.shots_by_season?.[soloSeason]?.length);
+
+  const fmt    = (v, d=1) => v == null ? '—' : Number(v).toFixed(d);
+  const fmtPct = (v, d=1) => v == null ? '—' : Number(v).toFixed(d) + '%';
+
+  const keyStats = [
+    ['PPG', fmt(basicSt.PPG)], ['RPG', fmt(basicSt.RPG)],
+    ['APG', fmt(basicSt.APG)], ['FG%', fmtPct(shootSt.FGP)],
+    ['3P%', fmtPct(shootSt.P3P)], ['TS%', fmtPct(shootSt.TSP)],
+    ['STL', fmt(basicSt.SPG)], ['BLK', fmt(basicSt.BPG)],
+  ];
+
+  const poSection = buildSoloPlayoffSection(p, soloSeason);
+
+  app.innerHTML = `<div>
+  <div class="solo-top">
+    <button class="back-btn" onclick="goToLanding()">← Back</button>
+    <button class="cta-compare-btn" onclick="goToCompareMode('${soloSlug}')">Compare with another player →</button>
+  </div>
+
+  <div class="solo-banner">
+    <div class="solo-banner-avatar">${ini(p.name)}</div>
+    <div style="flex:1;min-width:0">
+      <div class="solo-banner-name">${p.name}</div>
+      <div class="solo-banner-meta">${entry.team || p.team || '—'} · ${entry.pos || p.pos || ''}</div>
+      ${archetypes.length ? `<div class="arch-chips">${archetypes.map((t,j)=>`<span class="arch-chip ${j===0?'primary':'secondary'}">${t}</span>`).join('')}</div>` : ''}
+      ${awardsHtml}
+    </div>
+  </div>
+
+  <div class="season-pills-wrap">
+    <div class="season-pills">
+      <button class="season-pill${soloSeason==='Career'?' active':''}" onclick="setSoloSeason('Career')">Career</button>
+      ${seasons.map(s=>`<button class="season-pill${soloSeason===s?' active':''}" onclick="setSoloSeason('${s}')">${s}</button>`).join('')}
+    </div>
+  </div>
+
+  <div class="solo-key-stats">
+    ${keyStats.map(([lbl,val],idx)=>`<div class="solo-stat-big" style="animation-delay:${idx*0.04}s">
+      <div class="solo-stat-label">${lbl}</div>
+      <div class="solo-stat-val">${val}</div>
+    </div>`).join('')}
+  </div>
+
+  <div class="solo-two-col">
+    <div class="solo-section">
+      <div class="solo-section-title">Shot Chart</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        ${[['zones','📊 Zones'],['heat','🔥 Frequency'],['accuracy','🎯 Accuracy']].map(([m,lbl])=>
+          `<button class="shot-mode-btn${soloShotMode===m?' active':''}" data-solo-mode="${m}" onclick="setSoloShotMode('${m}')">${lbl}</button>`
+        ).join('')}
+      </div>
+      <div style="position:relative;border-radius:8px;overflow:hidden">
+        <canvas id="solo-hmap" style="display:block;width:100%"></canvas>
+      </div>
+      ${!hasShotData ? `<div class="shot-note" style="margin-top:8px">No shot data for this season</div>` : ''}
+    </div>
+    <div class="solo-section">
+      <div class="solo-section-title">Playstyle</div>
+      <div style="position:relative;width:100%;aspect-ratio:1/1.05;margin:0 auto">
+        <canvas id="solo-radar"></canvas>
+      </div>
+      <p style="text-align:center;font-size:10px;color:var(--text3);margin-top:8px;font-family:var(--font-mono);line-height:1.6">Scoring · Shooting · Rebounding<br>Playmaking · Defense · Impact</p>
+    </div>
+  </div>
+
+  ${soloSeason === 'Career' ? `<div class="h2h-card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="h2h-title" style="margin-bottom:0">Career Arc</div>
+      <div class="mode-toggle">
+        ${[['ppg','PPG'],['rpg','RPG'],['apg','APG']].map(([m,lbl])=>
+          `<button data-arc-solo="${m}"${soloArcMetric===m?' class="active"':''} onclick="setSoloArcMetric('${m}')">${lbl}</button>`
+        ).join('')}
+      </div>
+    </div>
+    <div style="position:relative;width:100%;height:200px"><canvas id="solo-arc"></canvas></div>
+  </div>` : ''}
+
+  <div class="h2h-card" style="margin-bottom:12px">
+    <div class="h2h-title">Advanced Stats${soloSeason!=='Career'?' — '+soloSeason:''}</div>
+    <div class="solo-adv-grid">
+      ${[['PER',fmt(advSt.PER)],['Win Shares',fmt(advSt.WS)],['BPM',fmt(advSt.BPM)],
+         ['VORP',fmt(advSt.VORP)],['USG%',fmt(advSt.USG)],['MPG',fmt(basicSt.MPG)]]
+        .map(([lbl,val])=>`<div class="solo-adv-item">
+          <div class="solo-adv-label">${lbl}</div>
+          <div class="solo-adv-val">${val}</div>
+        </div>`).join('')}
+    </div>
+    ${advNoteHtml([advNote(stats, soloSeason, firstSeasonOf(p))])}
+  </div>
+
+  ${poSection}
+
+  <div style="text-align:center;padding:24px 0 8px">
+    <button class="cta-compare-btn" style="padding:10px 24px;font-size:14px"
+      onclick="goToCompareMode('${soloSlug}')">
+      Compare ${p.name.split(' ')[0]} with another player
+    </button>
+  </div>
+  </div>`;
+
+  // Double rAF ensures layout is complete before we read offsetWidth
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    paintSoloHeatmap();
+    paintSoloRadar();
+    paintSoloArc();
+    startSoloZoneLoop();
+  }));
+}
+
+function buildSoloPlayoffSection(p, season) {
+  const poData = p.playoffs?.[season] || p.playoffs?.['Career'];
+  if (!poData?.basic) return '';
+  const regBas = (p.seasons?.[season] || p.seasons?.['Career'])?.basic || {};
+  const poBas  = poData.basic;
+  const rows = [['PPG','PPG'],['RPG','RPG'],['APG','APG'],['SPG','SPG'],['BPG','BPG']]
+    .filter(([k]) => regBas[k] != null || poBas[k] != null)
+    .map(([k, lbl]) => {
+      const rv = (regBas[k] ?? 0).toFixed(1);
+      const pv = (poBas[k] ?? 0).toFixed(1);
+      const rn = regBas[k] || 0, pn = poBas[k] || 0, mx = Math.max(rn, pn, 0.01);
+      const up = pn > rn;
+      return `<div class="h2h-row">
+        <div class="hval">${rv}</div>
+        <div>
+          <div class="hlbl">${lbl}</div>
+          <div class="bar-track" style="height:3px">
+            <div class="bl" style="width:${(rn/mx*50).toFixed(0)}%"></div>
+            <div class="br" style="width:${(pn/mx*50).toFixed(0)}%"></div>
+          </div>
+        </div>
+        <div class="hval${up?' w2':''}">${pv}</div>
+      </div>`;
+    }).join('');
+  if (!rows) return '';
+  return `<div class="h2h-card" style="margin-bottom:12px">
+    <div class="h2h-title">Regular Season vs Playoffs</div>
+    <div class="h2h-row" style="margin-bottom:4px">
+      <div class="hval" style="font-size:11px;color:var(--text3)">Regular</div>
+      <div></div>
+      <div class="hval" style="font-size:11px;color:var(--text3)">Playoffs</div>
+    </div>
+    ${rows}
+  </div>`;
+}
+
+// ── SOLO SEARCH ────────────────────────────────────────────────────────────────
+function soloSearch() {
+  const inp = document.getElementById('s-solo');
+  const dd  = document.getElementById('dd-solo');
+  if (!inp || !dd) return;
+  const v = inp.value.toLowerCase().trim();
+  if (!v) { dd.style.display = 'none'; return; }
+
+  const matches = searchPlayers(v, 12);
+
+  if (!matches.length) { dd.style.display = 'none'; return; }
+  dd.innerHTML = matches.map(p => {
+    const era = (!p.active && p.from && p.to) ? `${p.from}–${p.to}` : (p.team || '—');
+    const badge = p.active ? '<span class="dropdown-badge">Active</span>' : '';
+    return `<div class="dropdown-item" role="option" onclick="soloPickBySlug('${p.slug}')">
+      <span>${p.name}${badge}</span>
+      <span class="dropdown-team">${era} · ${p.pos}</span>
+    </div>`;
+  }).join('');
+  dd.style.display = 'block';
+}
+
+async function soloPickBySlug(slug) {
+  const dd  = document.getElementById('dd-solo');
+  const inp = document.getElementById('s-solo');
+  if (dd) dd.style.display = 'none';
+  if (inp) inp.disabled = true;
+  try {
+    await loadPlayer(slug);
+    goToPlayer(slug, 'Career');
+  } catch(e) {
+    if (inp) { inp.disabled = false; inp.value = ''; inp.placeholder = 'Failed — try again'; }
+  }
+}
+
+// ── SOLO CHARTS ────────────────────────────────────────────────────────────────
+let _soloHoveredZone = null;
+let _soloZoneCache = null;
+
+function startSoloZoneLoop() {
+  stopSoloZoneLoop();
+  if (soloShotMode !== 'zones') return;
+  const canvas = document.getElementById('solo-hmap');
+  if (!canvas) return;
+  canvas.addEventListener('mousemove', _soloZoneMouseMove);
+  canvas.addEventListener('mouseleave', _soloZoneMouseLeave);
+}
+
+function stopSoloZoneLoop() {
+  const canvas = document.getElementById('solo-hmap');
+  if (canvas) {
+    canvas.removeEventListener('mousemove', _soloZoneMouseMove);
+    canvas.removeEventListener('mouseleave', _soloZoneMouseLeave);
+  }
+  _soloHoveredZone = null;
+}
+
+function _soloZoneMouseMove(e) {
+  const canvas = e.currentTarget;
+  const [nbaX, nbaY] = canvasToNBA(canvas, e);
+  const zone = classifyZone(nbaX, nbaY);
+  if (zone !== _soloHoveredZone) {
+    _soloHoveredZone = zone;
+    // Static highlight — draw once at full brightness, no flicker
+    drawZoneChart(canvas, _soloZoneCache, zone, zone ? 1 : 0);
+  }
+}
+
+function _soloZoneMouseLeave(e) {
+  _soloHoveredZone = null;
+  drawZoneChart(e.currentTarget, _soloZoneCache, null, 0);
+}
+
+function setSoloShotMode(mode) {
+  soloShotMode = mode;
+  document.querySelectorAll('[data-solo-mode]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.soloMode === mode);
+  });
+  stopSoloZoneLoop();
+  paintSoloHeatmap();
+  if (mode === 'zones') startSoloZoneLoop();
+}
+
+function getSoloShotSeasons() {
+  const p = PLAYERS[soloSlug];
+  if (!p?.shots_by_season) return null;
+  if (soloSeason !== 'Career') return p.shots_by_season[soloSeason]?.length ? {[soloSeason]: p.shots_by_season[soloSeason]} : null;
+  return p.shots_by_season;
+}
+
+function getSoloShots() {
+  const p = PLAYERS[soloSlug];
+  if (!p?.shots_by_season) return null;
+  if (soloSeason !== 'Career') return p.shots_by_season[soloSeason] || null;
+  return Object.values(p.shots_by_season).flat().filter(Boolean);
+}
+
+function paintSoloHeatmap() {
+  const canvas = document.getElementById('solo-hmap');
+  if (!canvas) return;
+  const W = canvas.parentElement?.offsetWidth || 320;
+  const H = Math.round(W * 1.05);
+  sizeCanvas(canvas, W, H);
+  const shots = getSoloShots();
+  if (soloShotMode === 'zones') {
+    _soloZoneCache = shots?.length ? computeZonesFromShots(getSoloShotSeasons()) : null;
+    drawZoneChart(canvas, _soloZoneCache, null);
+  } else {
+    const ctx = canvas.getContext('2d');
+    const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim() || '#141416';
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    if (shots?.length) {
+      if (soloShotMode === 'heat') drawThermalHeatmap(canvas, shots);
+      else drawAccuracyDots(canvas, shots);
+    }
+    drawCourtLines(canvas);
+  }
+}
+
+function paintSoloRadar() {
+  const canvas = document.getElementById('solo-radar');
+  if (!canvas || !window.Chart) return;
+  const p = PLAYERS[soloSlug]; if (!p) return;
+  const stats  = p.seasons?.[soloSeason] || p.seasons?.['Career'];
+  const awards = (p.awards_by_season || {})[soloSeason] || [];
+  const scores = computeRadar(stats, awards, soloSeason);
+  if (soloRadarChart) { soloRadarChart.destroy(); soloRadarChart = null; }
+  const gc = 'rgba(255,255,255,0.08)', tc = '#9e9b94';
+  soloRadarChart = new Chart(canvas, {
+    type: 'radar',
+    data: { labels: radarLabels, datasets: [{
+      data: radarAxes.map(k => scores[k]),
+      borderColor: '#378ADD', backgroundColor: 'rgba(55,138,221,0.18)',
+      pointBackgroundColor: '#378ADD', pointRadius: 4, borderWidth: 2,
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: 4 },
+      plugins: { legend: { display: false } },
+      scales: { r: {
+        min: 0, max: 100,
+        ticks: { display: false, stepSize: 25 },
+        grid: { color: gc },
+        pointLabels: { color: tc, font: { size: 13, family: 'DM Mono, monospace' } },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+      }},
+    },
+  });
+}
+
+function setSoloArcMetric(metric) {
+  soloArcMetric = metric;
+  document.querySelectorAll('[data-arc-solo]').forEach(b => {
+    b.classList.toggle('active', b.dataset.arcSolo === metric);
+  });
+  paintSoloArc();
+}
+
+function paintSoloArc() {
+  const canvas = document.getElementById('solo-arc');
+  if (!canvas) { if (soloArcChart) { soloArcChart.destroy(); soloArcChart = null; } return; }
+  if (!window.Chart) return;
+  const p = PLAYERS[soloSlug]; if (!p) return;
+  const arcKey  = soloArcMetric === 'ppg' ? 'arc' : 'arc_' + soloArcMetric;
+  const arcData = p[arcKey] || {};
+  const labels  = Object.keys(arcData).sort();
+  const values  = labels.map(k => arcData[k] ?? null);
+  if (soloArcChart) { soloArcChart.destroy(); soloArcChart = null; }
+  const tc = 'rgba(90,88,85,1)', gc = 'rgba(255,255,255,0.05)';
+  soloArcChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets: [{
+      data: values,
+      borderColor: '#378ADD', backgroundColor: 'rgba(55,138,221,0.10)',
+      tension: 0.4, pointRadius: 4, pointHoverRadius: 6, spanGaps: false,
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      scales: {
+        x: { grid: { color: gc }, ticks: { color: tc, font: { size: 11 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 } },
+        y: { grid: { color: gc }, ticks: { color: tc, font: { size: 11 } },
+             title: { display: true, text: ARC_METRICS[soloArcMetric]?.label || soloArcMetric.toUpperCase(), color: tc, font: { size: 11 } },
+             beginAtZero: false },
+      },
+    },
+  });
+}
+</script>
+</body>
+</html>
